@@ -1,0 +1,2406 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TextToFlow</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230473EA'/%3E%3Crect x='7' y='5' width='13' height='7' rx='2' fill='%23fff'/%3E%3Cpath d='M13.5 12v4' stroke='%23fff' stroke-width='2'/%3E%3Cpath d='M13.5 16l5.5 4.5-5.5 4.5-5.5-4.5z' fill='%2338D200'/%3E%3Cpath d='M19 20.5h6v-4' stroke='%23fff' stroke-width='2' fill='none'/%3E%3C/svg%3E">
+<style>
+/* Colours: blue #0473EA, green #38D200, navy #0B1F3A */
+:root{
+  --font:'Segoe UI', system-ui, -apple-system, 'Helvetica Neue', Arial, sans-serif;
+  --brand-navy:#0B1F3A; --brand-navy-2:#13294B; --brand-blue:#0473EA; --brand-green:#38D200;
+  --bg:#F5F7FA; --panel:#FFFFFF; --panel-2:#EEF1F5; --border:#E3E8EF; --text:#1A2433; --muted:#5F6B7A;
+  --accent:#0473EA; --accent-soft:#E8F1FD; --danger:#C8102E; --danger-soft:#FCE8EB; --ok:#237A00;
+  --canvas:#F8FAFC; --grid:#D3DBE6; --shadow:0 1px 2px rgba(11,31,58,.06),0 6px 18px rgba(11,31,58,.09);
+  --c-stepF:#E8F1FD; --c-stepS:#0473EA; --c-decisionF:#FFF3DF; --c-decisionS:#E5A100;
+  --c-ioF:#E5F6F8; --c-ioS:#00879E; --c-databaseF:#EEF1F5; --c-databaseS:#13294B;
+  --c-terminalF:#13294B; --c-terminalS:#0B1F3A; --c-terminalT:#FFFFFF;
+  --c-personF:#FFFFFF; --c-personS:#C9D2DE; --c-band:#0473EA;
+  --c-text:#1A2433; --c-sub:#5F6B7A; --c-edge:#5F6B7A; --c-edgeText:#1A2433; --c-labelBg:#FFFFFF;
+  --c-yes:#2E9B00; --c-yesBg:#EAF8E1; --c-yesText:#1F6B00; --c-no:#C8102E; --c-noBg:#FCE8EB; --c-noText:#A00D25;
+  --c-errF:#FCE8EB; --c-errS:#C8102E; --c-errTermF:#C8102E; --c-errTermT:#FFFFFF;
+  --c-okF:#EAF8E1; --c-okS:#2E9B00; --c-okTermF:#2E9B00; --c-okTermT:#FFFFFF; --c-loopF:#FFFFFF; --c-loopS:#0473EA;
+  --c-noteF:#FFF8D6; --c-noteS:#E5C55C; --c-noteText:#5A4500; --c-num:#0473EA; --c-numText:#FFFFFF;
+  --c-laneA:#EDF2F8; --c-laneB:#F7F9FC; --c-laneLine:#D3DCE8; --c-laneHead:#13294B; --c-laneHeadText:#FFFFFF;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0A1424; --panel:#101D33; --panel-2:#16253F; --border:#22324F; --text:#E6ECF5; --muted:#93A3BB;
+    --accent:#4C9BFF; --accent-soft:#132B4D; --danger:#FF5C6E; --danger-soft:#3A1520; --ok:#5BE01F;
+    --canvas:#0C1729; --grid:#1E2D47; --shadow:0 1px 2px rgba(0,0,0,.4),0 6px 18px rgba(0,0,0,.35);
+    --c-stepF:#12305A; --c-stepS:#4C9BFF; --c-decisionF:#3A2A08; --c-decisionS:#F0B429;
+    --c-ioF:#0E3239; --c-ioS:#3CC6DB; --c-databaseF:#1C2B45; --c-databaseS:#8FA6C8;
+    --c-terminalF:#0473EA; --c-terminalS:#4C9BFF; --c-terminalT:#FFFFFF;
+    --c-personF:#16253F; --c-personS:#2B3D5E; --c-band:#4C9BFF;
+    --c-text:#E6ECF5; --c-sub:#93A3BB; --c-edge:#8FA0B8; --c-edgeText:#DCE4F0; --c-labelBg:#101D33;
+  --c-yes:#5BD62A; --c-yesBg:#163A12; --c-yesText:#8BEA62; --c-no:#FF5C6E; --c-noBg:#3A1520; --c-noText:#FF8A97;
+  --c-errF:#3A1520; --c-errS:#FF5C6E; --c-errTermF:#C8102E; --c-errTermT:#FFFFFF;
+  --c-okF:#163A12; --c-okS:#5BD62A; --c-okTermF:#2E9B00; --c-okTermT:#FFFFFF; --c-loopF:#101D33; --c-loopS:#4C9BFF;
+  --c-noteF:#3A3214; --c-noteS:#BFA040; --c-noteText:#F1E3A6; --c-num:#4C9BFF; --c-numText:#0B1F3A;
+  --c-laneA:#0F1C31; --c-laneB:#12223B; --c-laneLine:#22324F; --c-laneHead:#0473EA; --c-laneHeadText:#FFFFFF;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0A1424; --panel:#101D33; --panel-2:#16253F; --border:#22324F; --text:#E6ECF5; --muted:#93A3BB;
+  --accent:#4C9BFF; --accent-soft:#132B4D; --danger:#FF5C6E; --danger-soft:#3A1520; --ok:#5BE01F;
+  --canvas:#0C1729; --grid:#1E2D47; --shadow:0 1px 2px rgba(0,0,0,.4),0 6px 18px rgba(0,0,0,.35);
+  --c-stepF:#12305A; --c-stepS:#4C9BFF; --c-decisionF:#3A2A08; --c-decisionS:#F0B429;
+  --c-ioF:#0E3239; --c-ioS:#3CC6DB; --c-databaseF:#1C2B45; --c-databaseS:#8FA6C8;
+  --c-terminalF:#0473EA; --c-terminalS:#4C9BFF; --c-terminalT:#FFFFFF;
+  --c-personF:#16253F; --c-personS:#2B3D5E; --c-band:#4C9BFF;
+  --c-text:#E6ECF5; --c-sub:#93A3BB; --c-edge:#8FA0B8; --c-edgeText:#DCE4F0; --c-labelBg:#101D33;
+  --c-yes:#5BD62A; --c-yesBg:#163A12; --c-yesText:#8BEA62; --c-no:#FF5C6E; --c-noBg:#3A1520; --c-noText:#FF8A97;
+  --c-errF:#3A1520; --c-errS:#FF5C6E; --c-errTermF:#C8102E; --c-errTermT:#FFFFFF;
+  --c-okF:#163A12; --c-okS:#5BD62A; --c-okTermF:#2E9B00; --c-okTermT:#FFFFFF; --c-loopF:#101D33; --c-loopS:#4C9BFF;
+  --c-noteF:#3A3214; --c-noteS:#BFA040; --c-noteText:#F1E3A6; --c-num:#4C9BFF; --c-numText:#0B1F3A;
+  --c-laneA:#0F1C31; --c-laneB:#12223B; --c-laneLine:#22324F; --c-laneHead:#0473EA; --c-laneHeadText:#FFFFFF;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--text);font:14px/1.4 var(--font);display:flex;flex-direction:column;overflow:hidden}
+button{font:inherit;color:inherit}
+
+/* top bar */
+.top{display:flex;align-items:center;gap:6px;padding:8px 12px 11px;background:var(--brand-navy);color:#fff;flex-wrap:wrap;position:relative;z-index:20}
+.top::after{content:"";position:absolute;left:0;right:0;bottom:0;height:3px;background:linear-gradient(90deg,var(--brand-blue) 0%,var(--brand-blue) 55%,var(--brand-green) 100%)}
+.brand{display:flex;align-items:center;gap:8px;font-size:15px;font-weight:600;margin-right:4px;white-space:nowrap}
+.brand svg{width:26px;height:26px;flex:none}
+.brand b{color:var(--brand-green)}
+.title-in{border:1px solid transparent;background:transparent;color:#fff;font:inherit;font-weight:600;padding:5px 8px;border-radius:7px;width:170px}
+.title-in:hover{border-color:rgba(255,255,255,.25)}
+.title-in:focus{outline:none;border-color:var(--brand-blue);background:rgba(255,255,255,.08)}
+.sep{width:1px;height:22px;background:var(--border);margin:0 4px}
+.top .sep{background:rgba(255,255,255,.18)}
+.top .btn{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.2);color:#fff}
+.top .btn:hover{background:rgba(255,255,255,.15)}
+.top .btn:disabled{background:rgba(255,255,255,.06);opacity:.35}
+.top .btn.primary{background:var(--brand-green);border-color:var(--brand-green);color:var(--brand-navy);font-weight:600}
+.top .btn:focus-visible{outline-color:#fff}
+.top .dd-menu{color:var(--text)}
+.grow{flex:1}
+.btn{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--border);background:var(--panel);font-size:13px;padding:6px 11px;border-radius:7px;cursor:pointer;white-space:nowrap;line-height:1.2}
+.btn:hover{background:var(--panel-2)}
+.btn:disabled{opacity:.4;cursor:default;background:var(--panel)}
+.btn.icon{padding:6px 9px;min-width:32px;justify-content:center}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.primary:hover{filter:brightness(1.08)}
+.btn:focus-visible,.menu-item:focus-visible,.pal-item:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.dd{position:relative}
+.dd-menu{position:absolute;top:calc(100% + 5px);left:0;min-width:190px;background:var(--panel);border:1px solid var(--border);border-radius:9px;box-shadow:var(--shadow);padding:4px;display:none;z-index:60}
+.dd.right .dd-menu{left:auto;right:0}
+.dd.open .dd-menu{display:block}
+.menu-item{display:flex;justify-content:space-between;gap:16px;width:100%;text-align:left;border:0;background:none;font-size:13px;padding:7px 10px;border-radius:6px;cursor:pointer}
+.menu-item:hover{background:var(--panel-2)}
+.menu-item.on{color:var(--accent);font-weight:600}
+.menu-item .hint{color:var(--muted);font-size:12px}
+.menu-h{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);padding:8px 10px 3px}
+.menu-sep{height:1px;background:var(--border);margin:4px 2px}
+
+/* main split */
+main{flex:1;display:flex;min-height:0}
+.editor{width:var(--ed-w,370px);min-width:240px;max-width:65vw;display:flex;flex-direction:column;background:var(--panel)}
+.ed-head{display:flex;align-items:center;justify-content:space-between;padding:9px 12px;border-bottom:1px solid var(--border);font-weight:600;font-size:13px}
+.link{border:0;background:none;color:var(--accent);cursor:pointer;font-size:12.5px;padding:2px 4px;border-radius:5px}
+.link:hover{background:var(--accent-soft)}
+.ed-body{flex:1;display:flex;min-height:0}
+.gutter{width:38px;flex:none;overflow:hidden;background:var(--panel-2);border-right:1px solid var(--border);color:var(--muted);font:11.5px/22px var(--font);text-align:right;user-select:none}
+#gutter-in{padding:10px 0}
+.gl{height:22px;padding-right:8px;position:relative}
+.gl.hl{color:var(--accent);font-weight:700}
+.gl.err{color:var(--danger);font-weight:700}
+.gl.err::before{content:"";position:absolute;left:5px;top:8px;width:6px;height:6px;border-radius:50%;background:var(--danger)}
+.code{position:relative;flex:1;min-width:0}
+.backdrop{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+#backdrop-in,#ta{font:13.5px/22px var(--font);letter-spacing:normal;tab-size:4;white-space:pre}
+#backdrop-in{padding:10px 12px;width:max-content;min-width:100%;color:var(--text)}
+.bl{min-height:22px;margin:0 -12px;padding:0 12px}
+.bl.hl{background:var(--accent-soft)}
+.bl.err{background:var(--danger-soft)}
+.kw{color:var(--accent)}
+.tt{color:var(--muted)}
+.cm{color:var(--muted)}
+#ta{position:absolute;inset:0;width:100%;height:100%;margin:0;border:0;padding:10px 12px;background:transparent;color:transparent;caret-color:var(--text);resize:none;outline:none;overflow:auto}
+#ta::placeholder{color:var(--muted)}
+#ta::selection{background:rgba(47,111,222,.28);color:transparent}
+.problems{border-top:1px solid var(--border);padding:8px 10px;max-height:30%;overflow:auto;font-size:12.5px;display:flex;flex-direction:column;gap:3px}
+.problems.ok{color:var(--ok)}
+.prob{display:block;text-align:left;border:0;background:var(--danger-soft);border-radius:6px;padding:5px 8px;cursor:pointer;font-size:12.5px}
+.prob b{color:var(--danger);margin-right:4px}
+.resizer{width:5px;flex:none;cursor:col-resize;background:var(--border);opacity:.6}
+.resizer:hover,.resizer.active{background:var(--accent);opacity:1}
+
+/* canvas */
+.canvas-wrap{flex:1;position:relative;min-width:0;overflow:hidden;background-color:var(--canvas);background-image:radial-gradient(var(--grid) 1.1px,transparent 1.2px);background-size:20px 20px}
+#svg{position:absolute;inset:0;width:100%;height:100%;user-select:none;touch-action:none;cursor:default}
+#svg.panning{cursor:grabbing}
+.node{cursor:grab}
+#svg.dragging .node{cursor:grabbing}
+.node .ring{fill:none;stroke:var(--accent);stroke-width:2;stroke-dasharray:5 4;opacity:0}
+.node.sel .ring{opacity:1}
+.node.linked .ring{opacity:.6;stroke-dasharray:none;stroke-width:3}
+.node.drop .ring{opacity:1;stroke-dasharray:none;stroke-width:3}
+.node .handle{fill:var(--panel);stroke:var(--accent);stroke-width:1.5;opacity:0;cursor:crosshair;transition:opacity .12s}
+.node:hover .handle,.node.sel .handle{opacity:1}
+#svg.dragging .handle,#svg.connecting .handle{opacity:0}
+.node text{pointer-events:none}
+.edge .hit{fill:none;stroke:transparent;stroke-width:14;cursor:pointer}
+.edge:hover .line{stroke:var(--accent)!important}
+.edge.sel .line{stroke:var(--accent)!important;stroke-width:2.4!important;marker-end:url(#arw-sel)}
+.elabel{pointer-events:none}
+.temp{fill:none;stroke:var(--accent);stroke-width:2;stroke-dasharray:6 4;pointer-events:none}
+
+.palette{position:absolute;left:12px;top:12px;display:flex;flex-direction:column;gap:4px;background:var(--panel);border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow);padding:6px;z-index:5}
+.pal-title{font-size:10.5px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);text-align:center;padding:2px 0 3px}
+.pal-item{display:flex;flex-direction:column;align-items:center;gap:2px;width:58px;padding:6px 2px 5px;border-radius:8px;cursor:grab;font-size:10.5px;color:var(--muted);touch-action:none;user-select:none;border:0;background:none}
+.pal-item:hover{background:var(--panel-2);color:var(--text)}
+.pal-item svg{width:38px;height:24px}
+.pal-item.ghost{position:fixed;z-index:100;pointer-events:none;transform:translate(-50%,-50%);background:var(--panel);box-shadow:var(--shadow);opacity:.95}
+.p-step{fill:var(--c-stepF);stroke:var(--c-stepS);stroke-width:1.4}
+.p-decision{fill:var(--c-decisionF);stroke:var(--c-decisionS);stroke-width:1.4}
+.p-io{fill:var(--c-ioF);stroke:var(--c-ioS);stroke-width:1.4}
+.p-terminal{fill:var(--c-terminalF);stroke:var(--c-terminalS);stroke-width:1.4}
+.p-database{fill:var(--c-databaseF);stroke:var(--c-databaseS);stroke-width:1.4}
+.p-loop{fill:var(--c-loopF);stroke:var(--c-loopS);stroke-width:1.6}
+.top .btn.on{background:rgba(255,255,255,.24);border-color:#fff}
+#g-lanes{pointer-events:none}
+.p-person{fill:var(--c-personF);stroke:var(--c-personS);stroke-width:1.4}
+.p-band{fill:var(--c-band)}
+
+.zoom{position:absolute;right:12px;bottom:12px;display:flex;align-items:center;gap:2px;background:var(--panel);border:1px solid var(--border);border-radius:9px;box-shadow:var(--shadow);padding:3px;z-index:5}
+.zoom button{border:0;background:none;cursor:pointer;min-width:28px;height:26px;border-radius:6px;font-size:14px}
+.zoom button:hover{background:var(--panel-2)}
+.zoom #z-fit{font-size:12px;padding:0 8px}
+#zoom-val{font-size:11.5px;color:var(--muted);min-width:40px;text-align:center}
+.status{position:absolute;left:12px;bottom:12px;font-size:12px;color:var(--muted);background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:4px 9px;z-index:5}
+.empty{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;padding:0 90px}
+.empty div{max-width:360px;text-align:center;color:var(--muted);font-size:14px;line-height:1.6}
+.empty b{color:var(--text)}
+
+.inline-ed{position:fixed;z-index:80;height:34px;border:2px solid var(--accent);border-radius:8px;padding:0 10px;font:500 13.5px var(--font);background:var(--panel);color:var(--text);box-shadow:var(--shadow);outline:none;text-align:center}
+.ctx{position:fixed;z-index:90;min-width:200px;background:var(--panel);border:1px solid var(--border);border-radius:9px;box-shadow:var(--shadow);padding:4px}
+.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:var(--brand-navy);color:#fff;padding:8px 14px;border-radius:8px;font-size:13px;z-index:120;box-shadow:var(--shadow)}
+
+.modal{position:fixed;inset:0;background:rgba(10,14,22,.45);display:flex;align-items:center;justify-content:center;z-index:110;padding:16px}
+.modal[hidden]{display:none}
+.modal-card{background:var(--panel);border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow);width:min(760px,100%);max-height:90vh;overflow:auto;padding:22px 24px}
+.modal-card h2{margin:0 0 4px;font-size:18px}
+.modal-card h3{margin:18px 0 6px;font-size:13px;text-transform:uppercase;letter-spacing:.05em;color:var(--accent)}
+.modal-card p{margin:0 0 6px;color:var(--muted)}
+.help-grid{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:4px 16px;font-size:13px}
+.help-grid code{font:12.5px var(--font);background:var(--panel-2);border:1px solid var(--border);border-radius:5px;padding:2px 6px;display:inline-block}
+.help-grid span{color:var(--muted);padding-top:3px}
+.help-list{margin:0;padding-left:18px;font-size:13px;color:var(--text)}
+.help-list li{margin:3px 0}
+.modal-close{float:right}
+kbd{font:11.5px var(--font);border:1px solid var(--border);border-bottom-width:2px;border-radius:4px;padding:0 5px;background:var(--panel-2)}
+
+[hidden]{display:none!important}
+@media (max-width:760px){
+  main{flex-direction:column}
+  .editor{width:auto;max-width:none;height:38vh;min-width:0}
+  .resizer{display:none}
+  .title-in{width:120px}
+  .help-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="brand">
+    <svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="8" fill="#0473EA"/><rect x="7" y="5" width="13" height="7" rx="2" fill="#fff"/><path d="M13.5 12v4" stroke="#fff" stroke-width="2"/><path d="M13.5 16l5.5 4.5-5.5 4.5-5.5-4.5z" fill="#38D200"/><path d="M19 20.5h6v-4" stroke="#fff" stroke-width="2" fill="none"/></svg>
+    <span>TextTo<b>Flow</b></span>
+  </div>
+  <input id="title" class="title-in" value="My diagram" spellcheck="false" aria-label="Diagram name" title="Diagram name (used for file names)">
+  <div class="sep"></div>
+  <div class="dd" id="dd-examples">
+    <button class="btn" data-dd>Examples &#9662;</button>
+    <div class="dd-menu">
+      <div class="menu-h">Flowchart</div>
+      <button class="menu-item" data-example="flow1">Password reset</button>
+      <button class="menu-item" data-example="flow2">System access request</button>
+      <button class="menu-item" data-example="flow3">Production change</button>
+      <div class="menu-sep"></div>
+      <div class="menu-h">Org chart</div>
+      <button class="menu-item" data-example="org1">IT Service Desk team</button>
+      <button class="menu-item" data-example="org2">Infrastructure team</button>
+      <button class="menu-item" data-example="org3">Cyber Security team</button>
+      <div class="menu-sep"></div>
+      <div class="menu-h">Loop + lanes + notes</div>
+      <button class="menu-item" data-example="loop1">User access review</button>
+      <button class="menu-item" data-example="loop2">SSL certificate check</button>
+      <button class="menu-item" data-example="loop3">Daily backup check</button>
+    </div>
+  </div>
+  <button class="btn" id="btn-new" title="Start a new diagram">New</button>
+  <button class="btn" id="btn-open" title="Open a .texttoflow or .txt file (Ctrl+O)">Open</button>
+  <button class="btn" id="btn-save" title="Save as .texttoflow file (Ctrl+S)">Save</button>
+  <div class="sep"></div>
+  <button class="btn icon" id="btn-undo" title="Undo (Ctrl+Z)">&#8630;</button>
+  <button class="btn icon" id="btn-redo" title="Redo (Ctrl+Y)">&#8631;</button>
+  <div class="sep"></div>
+  <button class="btn" id="btn-dir" title="Switch direction">&#8595; Top-down</button>
+  <button class="btn" id="btn-layout" title="Tidy everything again (forgets boxes you moved)">Auto layout</button>
+  <button class="btn" id="btn-nums" title="Show / hide step numbers" aria-pressed="false">1 2 3</button>
+  <div class="grow"></div>
+  <button class="btn" id="btn-copy" title="Copy the diagram as a picture - paste into Outlook, Teams, Word">Copy picture</button>
+  <div class="dd right" id="dd-export">
+    <button class="btn primary" data-dd>Export &#9662;</button>
+    <div class="dd-menu">
+      <button class="menu-item" data-export="png">PNG image <span class="hint">.png</span></button>
+      <button class="menu-item" data-export="svg">SVG image <span class="hint">.svg</span></button>
+      <button class="menu-item" data-export="drawio">draw.io file <span class="hint">.drawio</span></button>
+    </div>
+  </div>
+  <button class="btn icon" id="btn-help" title="How to write instructions">?</button>
+  <button class="btn icon" id="btn-theme" title="Theme: auto">&#9680;</button>
+  <input type="file" id="file-in" accept=".texttoflow,.suhailflow,.json,.txt" hidden>
+</header>
+
+<main id="main">
+  <aside class="editor">
+    <div class="ed-head"><span>Instructions</span><button class="link" id="btn-syntax">How to write &#8250;</button></div>
+    <div class="ed-body">
+      <div class="gutter"><div id="gutter-in"></div></div>
+      <div class="code">
+        <div class="backdrop"><div id="backdrop-in"></div></div>
+        <textarea id="ta" spellcheck="false" wrap="off" autocomplete="off" aria-label="Diagram instructions" placeholder="Start, go to Read file&#10;Read file, go to Check user&#10;if user found, go to Send email&#10;else go to Log error&#10;&#10;Ali (Engineer) reports to Sara (IT Manager)"></textarea>
+      </div>
+    </div>
+    <div id="problems" class="problems"></div>
+  </aside>
+  <div class="resizer" id="resizer" title="Drag to resize"></div>
+  <section class="canvas-wrap" id="canvas-wrap">
+    <svg id="svg" aria-label="Diagram">
+      <defs>
+        <marker id="arw" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="10" markerHeight="10" markerUnits="userSpaceOnUse" orient="auto"><path d="M0,1 L10,5 L0,9 z" style="fill:var(--c-edge)"/></marker>
+        <marker id="arw-yes" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="10" markerHeight="10" markerUnits="userSpaceOnUse" orient="auto"><path d="M0,1 L10,5 L0,9 z" style="fill:var(--c-yes)"/></marker>
+        <marker id="arw-no" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="10" markerHeight="10" markerUnits="userSpaceOnUse" orient="auto"><path d="M0,1 L10,5 L0,9 z" style="fill:var(--c-no)"/></marker>
+        <marker id="arw-sel" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="11" markerHeight="11" markerUnits="userSpaceOnUse" orient="auto"><path d="M0,1 L10,5 L0,9 z" style="fill:var(--accent)"/></marker>
+      </defs>
+      <g id="vp"><g id="g-lanes"></g><g id="g-edges"></g><g id="g-nodes"></g><g id="g-labels"></g><g id="g-temp"></g></g>
+    </svg>
+    <div class="palette" id="palette">
+      <div class="pal-title">Drag</div>
+      <button class="pal-item" data-kind="step" title="Step - drag onto the canvas"><svg viewBox="0 0 40 26"><rect x="2" y="4" width="36" height="18" rx="4" class="p-step"/></svg><span>Step</span></button>
+      <button class="pal-item" data-kind="decision" title="Decision - drag onto the canvas"><svg viewBox="0 0 40 26"><polygon points="20,2 38,13 20,24 2,13" class="p-decision"/></svg><span>Decision</span></button>
+      <button class="pal-item" data-kind="loop" title="Loop (for each) - drag onto the canvas"><svg viewBox="0 0 40 26"><polygon points="9,4 31,4 38,13 31,22 9,22 2,13" class="p-loop"/></svg><span>Loop</span></button>
+      <button class="pal-item" data-kind="io" title="Input / Output - drag onto the canvas"><svg viewBox="0 0 40 26"><polygon points="9,4 38,4 31,22 2,22" class="p-io"/></svg><span>In / Out</span></button>
+      <button class="pal-item" data-kind="database" title="Database - drag onto the canvas"><svg viewBox="0 0 40 26"><path d="M9,5 V21 A11,3.5 0 0 0 31,21 V5 A11,3.5 0 0 0 9,5 Z" class="p-database"/><ellipse cx="20" cy="5" rx="11" ry="3.5" class="p-database"/></svg><span>Database</span></button>
+      <button class="pal-item" data-kind="terminal" title="Start / End - drag onto the canvas"><svg viewBox="0 0 40 26"><rect x="2" y="5" width="36" height="16" rx="8" class="p-terminal"/></svg><span>Start/End</span></button>
+      <button class="pal-item" data-kind="person" title="Person (org chart) - drag onto the canvas"><svg viewBox="0 0 40 26"><rect x="5" y="3" width="30" height="20" rx="3" class="p-person"/><rect x="5" y="3" width="30" height="3" rx="1.5" class="p-band"/></svg><span>Person</span></button>
+    </div>
+    <div class="empty" id="empty" hidden><div><b>Nothing here yet.</b><br>Type on the left, like <b>Start, go to Check user</b><br>or drag a shape from the bar.</div></div>
+    <div class="zoom"><button id="z-out" title="Zoom out">&minus;</button><span id="zoom-val">100%</span><button id="z-in" title="Zoom in">+</button><button id="z-fit" title="Fit to screen">Fit</button></div>
+    <div class="status" id="status"></div>
+  </section>
+</main>
+
+<input id="inline-ed" class="inline-ed" hidden autocomplete="off" spellcheck="false">
+<div id="ctx" class="ctx" hidden></div>
+<div id="toast" class="toast" hidden></div>
+
+<div id="help" class="modal" hidden>
+  <div class="modal-card" role="dialog" aria-label="How to write instructions">
+    <button class="btn icon modal-close" id="help-close" title="Close">&#10005;</button>
+    <h2>How to write instructions</h2>
+    <p>One instruction per line. Plain English. The diagram draws itself.</p>
+    <h3>Flowchart</h3>
+    <div class="help-grid">
+      <code>Start, go to Read file</code><span>box, arrow, box</span>
+      <code>go to Check user</code><span>carries on from the last box</span>
+      <code>if user found, go to Send email</code><span>diamond "User found?" with a Yes arrow</span>
+      <code>else go to Log error</code><span>the No arrow of that diamond</span>
+      <code>Check licence, if has licence, go to Done</code><span>diamond right after a named box</span>
+      <code>Is admin?, if yes, go to Admin page</code><span>a box ending in ? is a diamond</span>
+      <code>Log error, go to Read file</code><span>loops are fine</span>
+      <code>Send report</code><span>a box on its own</span>
+      <code># my note</code><span>ignored</span>
+    </div>
+    <h3>Org chart</h3>
+    <div class="help-grid">
+      <code>Sara (Head of IT) reports to Tom (CEO)</code><span>name (job title) - title once is enough</span>
+      <code>Ali (Engineer) reports to Sara</code><span>boss on top, team below</span>
+    </div>
+    <h3>Loops, notes, lanes</h3>
+    <div class="help-grid">
+      <code>for each server, go to Check disk space</code><span>loop box (hexagon) - repeats for every server</span>
+      <code>Clean temp files, go to next server</code><span>back to the loop for the next one</span>
+      <code>when done, go to Send report</code><span>leave the loop when all are done</span>
+      <code>note Send report: goes to the IT Ops mailbox</code><span>yellow sticky note beside the box</span>
+      <code>lane Service desk: Log ticket, Close ticket</code><span>swimlane - who does these steps</span>
+    </div>
+    <h3>Shapes are picked for you</h3>
+    <ul class="help-list">
+      <li><b>Rounded</b>: Start, End, Stop, Finish - also the first box, and any box with no arrow going out</li>
+      <li><b>Diamond</b>: made by <i>if</i>, or a name ending in <b>?</b></li>
+      <li><b>Database (cylinder)</b>: name has DB, Database or SQL in it, e.g. <i>Read DB</i></li>
+      <li><b>Hexagon</b>: a loop - <i>for each ...</i></li>
+      <li><b>Red box</b>: name has error, failed, failure, exception, invalid, denied, rejected, timeout or abort</li>
+      <li><b>Green box</b>: name has success, succeeded, completed, done, OK, passed or resolved</li>
+      <li><b>Arrows</b>: Yes = green, No = red</li>
+      <li><b>Slanted (teal)</b>: name starts with Read, Get, Send, Save, Print or Export</li>
+      <li><b>Rectangle</b>: everything else. Right-click a box to pick a shape yourself.</li>
+    </ul>
+    <h3>Mouse</h3>
+    <ul class="help-list">
+      <li>Drag a shape from the left bar onto the canvas (or click it)</li>
+      <li>Drag a box to move it. <b>Auto layout</b> tidies it all again.</li>
+      <li>Drag from a blue dot to another box to link them. Drop on empty space = new box.</li>
+      <li>Double-click a box to rename. Double-click empty space to add a step.</li>
+      <li>Click a box or arrow, then <kbd>Delete</kbd>. Right-click a box to add a note, put it in a lane or pick a shape.</li>
+      <li>Mouse wheel zooms. Drag empty space to move around.</li>
+      <li><b>1 2 3</b> shows step numbers. <b>Copy picture</b> copies the diagram - paste it into Outlook, Teams or Word.</li>
+    </ul>
+    <h3>Keys</h3>
+    <p><kbd>Ctrl</kbd>+<kbd>Z</kbd> undo &middot; <kbd>Ctrl</kbd>+<kbd>Y</kbd> redo &middot; <kbd>Ctrl</kbd>+<kbd>S</kbd> save &middot; <kbd>Ctrl</kbd>+<kbd>O</kbd> open &middot; <kbd>F2</kbd> rename &middot; <kbd>Delete</kbd> remove &middot; <kbd>Esc</kbd> cancel</p>
+  </div>
+</div>
+
+<script>
+(() => {
+'use strict';
+
+/* ================================================================
+   Basics
+   ================================================================ */
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+const FONT = "'Segoe UI', system-ui, -apple-system, 'Helvetica Neue', Arial, sans-serif";
+const F_LABEL = `500 13px ${FONT}`, F_NAME = `600 13.5px ${FONT}`, F_TITLE = `400 11.5px ${FONT}`, F_EDGE = `600 11px ${FONT}`;
+const F_NOTE = `400 11.5px ${FONT}`, F_LANE = `600 12.5px ${FONT}`, F_NUM = `700 10.5px ${FONT}`;
+const LINE_H = 17, TITLE_H = 15, SKEW = 12, DB_RY = 7, HEX = 14, SEP = '\u0001', LH = 22;
+const NOTE_GAP = 22, NOTE_LH = 15, LANE_HEAD = 30, LANE_PAD = 26;
+const KINDS = ['step', 'decision', 'loop', 'io', 'database', 'terminal', 'person'];
+const KIND_NAME = { step: 'Step', decision: 'Decision', loop: 'Loop (for each)', io: 'Input / Output', database: 'Database', terminal: 'Start / End', person: 'Person' };
+const STORE_KEY = 'texttoflow.doc', THEME_KEY = 'texttoflow.theme', WIDTH_KEY = 'texttoflow.edw';
+const OLD_STORE_KEY = 'suhailflow.doc'; // the app's old name - read once so the last diagram is not lost
+
+// colours used for export (always light) and the live colours (CSS variables, follow the theme)
+const LIGHT = {
+  stepF: '#E8F1FD', stepS: '#0473EA', decisionF: '#FFF3DF', decisionS: '#E5A100',
+  ioF: '#E5F6F8', ioS: '#00879E', databaseF: '#EEF1F5', databaseS: '#13294B',
+  terminalF: '#13294B', terminalS: '#0B1F3A', terminalT: '#FFFFFF',
+  personF: '#FFFFFF', personS: '#C9D2DE', band: '#0473EA',
+  text: '#1A2433', sub: '#5F6B7A', edge: '#5F6B7A', edgeText: '#1A2433', labelBg: '#FFFFFF',
+  yes: '#2E9B00', yesBg: '#EAF8E1', yesText: '#1F6B00', no: '#C8102E', noBg: '#FCE8EB', noText: '#A00D25',
+  errF: '#FCE8EB', errS: '#C8102E', errTermF: '#C8102E', errTermT: '#FFFFFF',
+  okF: '#EAF8E1', okS: '#2E9B00', okTermF: '#2E9B00', okTermT: '#FFFFFF', loopF: '#FFFFFF', loopS: '#0473EA',
+  noteF: '#FFF8D6', noteS: '#E5C55C', noteText: '#5A4500', num: '#0473EA', numText: '#FFFFFF',
+  laneA: '#EDF2F8', laneB: '#F7F9FC', laneLine: '#D3DCE8', laneHead: '#13294B', laneHeadText: '#FFFFFF'
+};
+const LIVE = {};
+for (const k of Object.keys(LIGHT)) LIVE[k] = `var(--c-${k})`;
+
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const norm = s => s.trim().replace(/\s+/g, ' ').replace(/\s+\?/g, '?').toLowerCase();
+const cap = s => s ? s.charAt(0).toUpperCase() + s.slice(1) : s;
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const f1 = v => (Math.round(v * 10) / 10).toString();
+
+const mctx = document.createElement('canvas').getContext('2d');
+const tw = (t, font) => { mctx.font = font; return mctx.measureText(t).width; };
+function wrapText(text, font, maxW) {
+  const words = String(text).split(/\s+/).filter(Boolean);
+  const out = [];
+  let cur = '';
+  for (const w of words) {
+    const t = cur ? cur + ' ' + w : w;
+    if (!cur || tw(t, font) <= maxW) cur = t;
+    else { out.push(cur); cur = w; }
+  }
+  if (cur) out.push(cur);
+  return out.length ? out : [''];
+}
+
+/* ================================================================
+   State
+   ================================================================ */
+const S = { title: 'My diagram', dir: 'TB', text: '', pos: { TB: {}, LR: {} }, shape: {}, nums: false };
+let M = { nodes: new Map(), edges: [], recs: [], errors: [], lanes: [], laneLines: new Map() };   // parsed model
+let L = { pos: {}, band: {}, comp: {}, chains: {}, dummy: {}, lanes: [] };  // auto layout
+let lastP = {}, lastR = new Map();
+let view = { k: 1, tx: 0, ty: 0 };
+let autoFit = true;
+let keepInView = false;    // after a mouse edit: re-fit only if something went off screen
+let sel = null;           // {type:'node'|'edge', id}
+let linked = new Set();    // nodes on the text line under the caret
+let fileHandle = null;     // for Save (Chrome / Edge)
+
+const mpos = () => (S.pos[S.dir] ||= {});
+
+/* ================================================================
+   Parser - plain English lines -> nodes + edges
+   ================================================================ */
+const GO = String.raw`\b(?:go\s*to|goes\s+to)\b`;
+const RX = {
+  comment: /^\s*(?:#|\/\/)/,
+  elseGo: new RegExp(String.raw`^\s*(?:else|otherwise)\b\s*,?\s*(?:then\s+)?${GO}\s*(.+?)\s*$`, 'di'),
+  elseLoose: /^\s*(?:else|otherwise)\b\s*,?\s*(.+?)\s*$/di,
+  ifGo: new RegExp(String.raw`^\s*(?:(.+?)\s*,\s*)?\bif\s+(.+?)\s*,?\s*(?:then\s+)?${GO}\s*(.+?)\s*$`, 'di'),
+  ifLoose: /^\s*(?:(.+?)\s*,\s*)?\bif\s+([^,]+?)\s*,\s*(.+?)\s*$/di,
+  reports: /^\s*(.+?)\s+\breports\s+to\b\s*(.+?)\s*$/di,
+  goCtx: new RegExp(String.raw`^\s*(?:then\s+)?${GO}\s*(.+?)\s*$`, 'di'),
+  go: new RegExp(String.raw`^\s*(.+?)\s*,?\s*(?:\bthen\s+)?${GO}\s*(.+?)\s*$`, 'di'),
+  person: /^(.*?)\s*\(([^()]*)\)$/,
+  note: /^\s*note\s+(.+?)\s*:\s*(.+?)\s*$/di,
+  lane: /^\s*lane\s+(.+?)\s*:\s*(.*?)\s*$/di,
+  forEach: new RegExp(String.raw`^\s*(?:(.+?)\s*,\s*)?\bfor\s*each\s+(.+?)\s*,?\s*(?:then\s+)?${GO}\s*(.+?)\s*$`, 'di'),
+  forEachAlone: /^\s*for\s*each\s+(.+?)\s*$/di,
+  whenDone: new RegExp(String.raw`^\s*when\s+(?:all\s+)?(?:(.+?)\s+)?(?:are\s+|is\s+)?done\b\s*,?\s*(?:then\s+)?${GO}\s*(.+?)\s*$`, 'di'),
+};
+const LOOP_RX = /^for\s*each\b/i;
+const TERMINAL_RX = /^(start|begin|end|finish|stop|done)$/i;
+const IO_RX = /^(read|get|send|save|print|export)\b/i;
+const DB_RX = /\b(db|database|sql)\b/i;
+// words that make a box red
+const ERR_RX = /\b(errors?|fail(s|ed|ure|ures)?|exceptions?|invalid|denied|reject(s|ed)?|time\s?outs?|timed\s+out|abort(s|ed)?|crash(es|ed)?)\b/i;
+// words that make a box green (red wins if both)
+const OK_RX = /\b(success(ful|fully)?|succeed(s|ed)?|completed?|done|ok|okay|passed|resolved)\b/i;
+const cleanEnd = s => s.trim().replace(/[\s.;:!,]+$/, '');
+
+function parse(text, ov) {
+  ov = ov || {};
+  const lines = text.split('\n');
+  const nodes = new Map(), edges = [], recs = [], errors = [], ekeys = new Set();
+  const notes = [], laneDefs = [], loopIds = [];
+  let order = 0, ctx = null, lastDec = null, loopStack = [];
+
+  // names used in "reports to" lines are people
+  const people = new Set();
+  for (const ln of lines) {
+    const m = RX.reports.exec(ln);
+    if (!m) continue;
+    for (const g of [m[1], m[2]]) { const c = cleanEnd(g), pm = RX.person.exec(c); people.add(norm(pm && pm[1].trim() ? pm[1] : c)); }
+  }
+
+  const isDec = id => id != null && (ov[id] ? ov[id] === 'decision' : !!(nodes.get(id) && nodes.get(id).dec));
+  const node = (name, i, span, o = {}) => {
+    const id = o.id || norm(name);
+    let n = nodes.get(id);
+    if (!n) {
+      n = { id, label: name, title: '', titleSpan: null, spans: [], lines: new Set(), order: order++, dec: /\?$/.test(name), person: false };
+      nodes.set(id, n);
+      if (LOOP_RX.test(name)) { n.item = name.replace(/^for\s*each\s+/i, ''); loopIds.push(id); }
+    }
+    if (o.dec) n.dec = true;
+    if (o.person) n.person = true;
+    if (o.title && !n.title) { n.title = o.title; n.titleSpan = o.titleSpan; }
+    if (span) n.spans.push({ line: i, s: span.s, e: span.e, cond: !!o.cond, item: !!o.item });
+    n.lines.add(i);
+    recs[i].nodes.add(id);
+    return id;
+  };
+  const span = (raw, ix) => {
+    let [s, e] = ix;
+    while (s < e && /\s/.test(raw[s])) s++;
+    while (e > s && /[\s.;:!,]/.test(raw[e - 1])) e--;
+    return { s, e, text: raw.slice(s, e) };
+  };
+  const ref = (raw, i, ix, asPerson) => {
+    const sp = span(raw, ix);
+    if (!sp.text) return null;
+    const pm = RX.person.exec(sp.text);
+    if (pm && pm[1].trim() && (asPerson || people.has(norm(pm[1])) || ov[norm(pm[1])] === 'person')) {
+      const nl = pm[1].length;
+      return node(pm[1], i, { s: sp.s, e: sp.s + nl }, { person: true, title: pm[2].trim(), titleSpan: { line: i, s: sp.s + nl, e: sp.e } });
+    }
+    return node(sp.text, i, sp, { person: !!asPerson });
+  };
+  const edge = (from, to, label, i, kind) => {
+    if (from == null || to == null) return;
+    const id = JSON.stringify([from, to, kind === 'else' ? '(else)' : label]);
+    if (ekeys.has(id)) return;
+    ekeys.add(id);
+    edges.push({ id, from, to, label, line: i, kind });
+  };
+  const fmtLabel = c => /^(yes|y|true)$/i.test(c) ? 'Yes' : /^(no|n|false)$/i.test(c) ? 'No' : cap(c);
+  const err = (i, msg) => errors.push({ line: i, msg });
+
+  // loops: "for each mailbox" box, "next mailbox" goes back to it, "when done" leaves it
+  const sameItem = (a, b) => { a = norm(a); b = norm(b); return a === b || a + 's' === b || b + 's' === a || a + 'es' === b || b + 'es' === a; };
+  const findLoop = item => {
+    if (!item) return loopStack[loopStack.length - 1] || loopIds[loopIds.length - 1] || null;
+    for (let k = loopStack.length - 1; k >= 0; k--) if (sameItem(nodes.get(loopStack[k]).item, item)) return loopStack[k];
+    return loopIds.find(id => sameItem(nodes.get(id).item, item)) || null;
+  };
+  const loopNode = (raw, i, ix) => {
+    const sp = span(raw, ix);
+    if (!sp.text) return null;
+    const id = node('For each ' + sp.text, i, sp, { id: norm('For each ' + sp.text), item: true });
+    loopStack = loopStack.filter(x => x !== id);
+    loopStack.push(id);
+    return id;
+  };
+  // a target; "next <item>" points back to its loop
+  const tref = (raw, i, ix, r) => {
+    const sp = span(raw, ix), m = /^next(?:\s+(.+))?$/i.exec(sp.text);
+    if (m) {
+      const id = findLoop(m[1]);
+      if (id) {
+        const n = nodes.get(id);
+        if (m[1]) n.spans.push({ line: i, s: sp.e - m[1].length, e: sp.e, item: true });
+        n.lines.add(i); recs[i].nodes.add(id);
+        r.next = true;
+        return id;
+      }
+      if (!m[1]) { err(i, "'next' needs a 'for each' line above it"); return null; }
+    }
+    return ref(raw, i, ix);
+  };
+
+  lines.forEach((raw, i) => {
+    const r = { i, type: 'blank', nodes: new Set(), show: null, bind: null, src: null, tgt: null, dec: null, ctxAfter: null };
+    recs.push(r);
+    if (!raw.trim()) { r.ctxAfter = ctx; return; }
+    if (RX.comment.test(raw)) { r.type = 'comment'; r.ctxAfter = ctx; return; }
+    let m;
+    if ((m = RX.note.exec(raw))) {
+      r.type = 'note';
+      notes.push({ i, ix: m.indices[1], text: m[2] });
+    } else if ((m = RX.lane.exec(raw))) {
+      r.type = 'lane';
+      r.show = new Set();
+      const items = [];
+      let at = m.indices[2][0];
+      for (const part of m[2].split(',')) {
+        const sp = span(raw, [at, at + part.length]);
+        if (sp.text) items.push(sp);
+        at += part.length + 1;
+      }
+      laneDefs.push({ i, name: m[1].trim(), items });
+    } else if ((m = RX.whenDone.exec(raw))) {
+      r.type = 'done';
+      const lp = findLoop(m[1] && m[1].trim() ? m[1] : null);
+      if (!lp) err(i, "'when done' needs a 'for each' line above it");
+      else {
+        r.bind = { id: lp };
+        nodes.get(lp).lines.add(i); r.nodes.add(lp);
+        const t = tref(raw, i, m.indices[2], r);
+        r.tgt = t;
+        edge(lp, t, 'Done', i, 'done');
+        loopStack = loopStack.slice(0, Math.max(0, loopStack.indexOf(lp)));
+        if (t != null) ctx = t;
+      }
+    } else if ((m = RX.forEach.exec(raw))) {
+      r.type = 'loop';
+      let src = null;
+      if (m.indices[1]) src = ref(raw, i, m.indices[1]);
+      else if (ctx != null) { src = ctx; r.bind = { id: ctx }; }
+      const lp = loopNode(raw, i, m.indices[2]), t = tref(raw, i, m.indices[3], r);
+      r.src = src; r.tgt = t; r.loop = lp;
+      if (src != null) edge(src, lp, '', i, 'loopin');
+      edge(lp, t, '', i, 'loopbody');
+      if (t != null) ctx = t;
+    } else if ((m = RX.forEachAlone.exec(raw))) {
+      r.type = 'node';
+      const lp = loopNode(raw, i, m.indices[1]);
+      if (lp != null) { r.tgt = lp; ctx = lp; }
+    } else if ((m = RX.elseGo.exec(raw) || RX.elseLoose.exec(raw))) {
+      r.type = 'else';
+      if (!lastDec) err(i, "'else' needs an 'if' line above it");
+      else {
+        r.bind = { id: lastDec }; r.dec = lastDec;
+        nodes.get(lastDec).lines.add(i); r.nodes.add(lastDec);
+        const t = tref(raw, i, m.indices[1], r);
+        r.tgt = t;
+        edge(lastDec, t, '', i, 'else');
+        if (t != null) ctx = t;
+      }
+    } else if ((m = RX.ifGo.exec(raw) || RX.ifLoose.exec(raw))) {
+      r.type = 'if';
+      let src = null;
+      if (m.indices[1]) src = ref(raw, i, m.indices[1]);
+      else if (ctx != null) { src = ctx; r.bind = { id: ctx }; }
+      const c = span(raw, m.indices[2]);
+      const base = c.text.replace(/\s*\?+$/, '');
+      const t = tref(raw, i, m.indices[3], r);
+      r.src = src; r.tgt = t;
+      if (!base || t == null) err(i, 'Write it like: if user found, go to Send email');
+      else if (src != null && isDec(src)) { edge(src, t, fmtLabel(base), i, 'label'); r.cond = base; lastDec = src; }
+      else {
+        const d = node(cap(base) + '?', i, { s: c.s, e: c.s + base.length }, { id: norm(base) + '?', dec: true, cond: true });
+        r.dec = d;
+        if (src != null) edge(src, d, '', i, 'ifctx');
+        edge(d, t, 'Yes', i, 'ifyes');
+        lastDec = d;
+      }
+      if (t != null) ctx = t;
+    } else if ((m = RX.reports.exec(raw))) {
+      r.type = 'reports';
+      const p = ref(raw, i, m.indices[1], true), b = ref(raw, i, m.indices[2], true);
+      r.src = b; r.tgt = p;
+      edge(b, p, '', i, 'reports');
+      if (p != null) ctx = p;
+    } else if ((m = RX.goCtx.exec(raw))) {
+      r.type = 'go';
+      const t = tref(raw, i, m.indices[1], r);
+      r.tgt = t;
+      if (ctx != null) { r.src = ctx; r.bind = { id: ctx }; edge(ctx, t, r.next ? 'Next' : '', i, r.next ? 'next' : 'go'); }
+      else err(i, "Say where it comes from, e.g. 'Start, " + raw.trim() + "'");
+      if (t != null) { ctx = t; if (isDec(t)) lastDec = t; }
+    } else if ((m = RX.go.exec(raw))) {
+      r.type = 'go';
+      const s = ref(raw, i, m.indices[1]), t = tref(raw, i, m.indices[2], r);
+      r.src = s; r.tgt = t;
+      edge(s, t, r.next ? 'Next' : '', i, r.next ? 'next' : 'go');
+      if (isDec(s)) lastDec = s;
+      if (t != null) { ctx = t; if (isDec(t)) lastDec = t; }
+    } else if (/^\s*(?:if|else|otherwise)\b/i.test(raw)) {
+      r.type = 'error';
+      err(i, "Add 'go to', e.g. 'if user found, go to Send email'");
+    } else {
+      r.type = 'node';
+      const id = ref(raw, i, [0, raw.length]);
+      if (id != null) { r.tgt = id; ctx = id; if (isDec(id)) lastDec = id; }
+    }
+    r.ctxAfter = ctx;
+  });
+
+  const findBox = text => nodes.get(norm(text)) || nodes.get(norm(text) + '?') || nodes.get(norm(RX.person.exec(text) ? RX.person.exec(text)[1] : text));
+
+  // notes: "note Box: text"
+  for (const nt of notes) {
+    const sp = span(lines[nt.i], nt.ix), n = findBox(sp.text);
+    if (!n) { err(nt.i, `No box called '${sp.text}' for this note`); continue; }
+    (n.notes ||= []).push(nt.text.trim());
+    n.spans.push({ line: nt.i, s: sp.s, e: sp.e });
+    n.lines.add(nt.i); recs[nt.i].nodes.add(n.id);
+  }
+
+  // swimlanes: "lane Name: Box, Box"
+  const laneList = [], laneLines = new Map();
+  for (const ld of laneDefs) {
+    let li = laneList.findIndex(x => norm(x) === norm(ld.name));
+    if (li < 0) { laneList.push(ld.name); li = laneList.length - 1; }
+    const ids = [];
+    for (const it of ld.items) {
+      const n = findBox(it.text);
+      if (!n) { err(ld.i, `No box called '${it.text}' (lane ${ld.name})`); continue; }
+      if (n.lane != null && n.lane !== li) { err(ld.i, `'${n.label}' is already in lane ${laneList[n.lane]}`); continue; }
+      n.lane = li;
+      n.spans.push({ line: ld.i, s: it.s, e: it.e, lane: true });
+      ids.push(n.id); recs[ld.i].show.add(n.id);
+    }
+    laneLines.set(ld.i, { name: ld.name, ids });
+  }
+  // boxes not listed in a lane go with the box they come from (or go to)
+  if (laneList.length) {
+    for (let pass = 0; pass < 3; pass++) for (const n of nodes.values()) {
+      if (n.lane != null) continue;
+      const p = edges.find(e => e.to === n.id && nodes.get(e.from).lane != null);
+      const q = p ? null : edges.find(e => e.from === n.id && nodes.get(e.to).lane != null);
+      if (p || q) { n.lane = nodes.get(p ? p.from : q.to).lane; n.laneAuto = true; }
+    }
+    for (const n of nodes.values()) if (n.lane == null) { n.lane = 0; n.laneAuto = true; }
+  }
+
+  // label for 'else' arrows: the opposite of the other arrows, if possible
+  for (const e of edges) {
+    if (e.kind !== 'else') continue;
+    const labs = edges.filter(x => x.from === e.from && x.kind !== 'else' && x.label).map(x => x.label);
+    e.label = labs.every(l => l === 'Yes') ? 'No' : labs.every(l => l === 'No') ? 'Yes' : 'Other';
+  }
+
+  // shape for every node
+  const ind = new Map(), outd = new Map();
+  for (const e of edges) if (e.from !== e.to) { outd.set(e.from, (outd.get(e.from) || 0) + 1); ind.set(e.to, (ind.get(e.to) || 0) + 1); }
+  let first = null;
+  for (const n of nodes.values()) if (!n.person && !first) first = n;
+  for (const n of nodes.values()) {
+    const a = ind.get(n.id) || 0, b = outd.get(n.id) || 0;
+    n.inD = a; n.outD = b;
+    n.kind = KINDS.includes(ov[n.id]) ? ov[n.id]
+      : n.person ? 'person'
+      : LOOP_RX.test(n.label) ? 'loop'
+      : n.dec ? 'decision'
+      : DB_RX.test(n.label) ? 'database'
+      : TERMINAL_RX.test(n.label) ? 'terminal'
+      : IO_RX.test(n.label) ? 'io'
+      : (n === first && !a && b) || (a && !b) ? 'terminal'
+      : 'step';
+    n.bad = n.kind !== 'person' && ERR_RX.test(n.label);
+    n.good = !n.bad && n.kind !== 'person' && OK_RX.test(n.label);
+  }
+  return { nodes, edges, recs, errors, lanes: laneList, laneLines };
+}
+
+/* ================================================================
+   Sizes
+   ================================================================ */
+function measure(n) {
+  measureBox(n);
+  if (n.notes && n.notes.length) {
+    n.ntxt = n.notes.flatMap(t => wrapText(t, F_NOTE, 160));
+    n.nw = Math.ceil(Math.max(...n.ntxt.map(t => tw(t, F_NOTE)))) + 22;
+    n.nh = n.ntxt.length * NOTE_LH + 14;
+  } else { n.ntxt = null; n.nw = 0; n.nh = 0; }
+}
+function measureBox(n) {
+  if (n.kind === 'person') {
+    n.txt = wrapText(n.label, F_NAME, 170);
+    n.ttxt = n.title ? wrapText(n.title, F_TITLE, 170) : [];
+    const w = Math.max(0, ...n.txt.map(t => tw(t, F_NAME)), ...n.ttxt.map(t => tw(t, F_TITLE)));
+    n.w = Math.max(120, Math.ceil(w) + 32);
+    n.h = n.txt.length * LINE_H + n.ttxt.length * TITLE_H + 26;
+    return;
+  }
+  const maxW = { step: 160, io: 150, database: 150, loop: 150, terminal: 150, decision: 118 }[n.kind] || 160;
+  n.txt = wrapText(n.label, F_LABEL, maxW);
+  n.ttxt = [];
+  const w = Math.max(...n.txt.map(t => tw(t, F_LABEL))), th = n.txt.length * LINE_H;
+  if (n.kind === 'decision') {
+    const b = th / 2 + 20, a = (w / 2) * (b / (b - th / 2)) + 10;
+    n.w = Math.max(96, Math.ceil(2 * a)); n.h = Math.max(60, Math.ceil(2 * b));
+  } else if (n.kind === 'terminal') { n.w = Math.max(84, Math.ceil(w) + 40); n.h = Math.max(38, th + 18); }
+  else if (n.kind === 'io') { n.w = Math.max(110, Math.ceil(w) + 32 + SKEW * 2); n.h = Math.max(42, th + 22); }
+  else if (n.kind === 'database') { n.w = Math.max(104, Math.ceil(w) + 34); n.h = Math.max(56, th + 22 + DB_RY * 2); }
+  else if (n.kind === 'loop') { n.w = Math.max(120, Math.ceil(w) + 28 + HEX * 2); n.h = Math.max(42, th + 22); }
+  else { n.w = Math.max(100, Math.ceil(w) + 30); n.h = Math.max(42, th + 22); }
+}
+
+/* ================================================================
+   Auto layout - layered (rows of boxes), works top-down or left-right
+   s = position across a row, p = position along the flow
+   ================================================================ */
+function layoutGraph(nodes, edges, dir, laneNames = []) {
+  const TB = dir === 'TB', lanesOn = laneNames.length > 0;
+  // a box takes l to its left and r to its right across the row (a note sits on the right / below)
+  const ext = n => { const half = (TB ? n.w : n.h) / 2, note = TB ? n.nw : n.nh; return { l: half, r: half + (note ? NOTE_GAP + note : 0) }; };
+  const psz = n => Math.max(TB ? n.h : n.w, (TB ? n.nh : n.nw) || 0);
+  const NODE_GAP = TB ? 44 : 30, LAYER_GAP = TB ? 58 : 80, COMP_GAP = 90, DUMMY = 14;
+  const out = { pos: {}, band: {}, comp: {}, chains: {}, dummy: {}, lanes: [] };
+  const ids = nodes.map(n => n.id), info = new Map(nodes.map(n => [n.id, n]));
+  const succ = new Map(), pred = new Map();
+  ids.forEach(id => { succ.set(id, []); pred.set(id, []); });
+  const pairs = [], seenPair = new Set();
+  for (const e of edges) {
+    if (e.from === e.to || !info.has(e.from) || !info.has(e.to)) continue;
+    const k = e.from + SEP + e.to;
+    if (seenPair.has(k)) continue;
+    seenPair.add(k); pairs.push([e.from, e.to]);
+    succ.get(e.from).push(e.to); pred.get(e.to).push(e.from);
+  }
+
+  // 1. break loops (depth-first; arrows back to an open box are loops)
+  const st = new Map(), back = new Set();
+  const dfs = u => {
+    st.set(u, 1);
+    for (const v of succ.get(u)) { const s = st.get(v) || 0; if (s === 1) back.add(u + SEP + v); else if (!s) dfs(v); }
+    st.set(u, 2);
+  };
+  ids.forEach(id => { if (!pred.get(id).length && !st.get(id)) dfs(id); });
+  ids.forEach(id => { if (!st.get(id)) dfs(id); });
+  const dsucc = new Map(), dpred = new Map();
+  ids.forEach(id => { dsucc.set(id, []); dpred.set(id, []); });
+  for (const [u, v] of pairs) if (!back.has(u + SEP + v)) { dsucc.get(u).push(v); dpred.get(v).push(u); }
+
+  // 2. rows (longest path), then pull start boxes down next to their children.
+  //    A loop's "Done" box must sit below the whole loop body: hidden ranking links (never drawn).
+  const rsucc = new Map(ids.map(id => [id, dsucc.get(id).slice()])), rpred = new Map(ids.map(id => [id, dpred.get(id).slice()]));
+  const reaches = (a, b) => {
+    const seen = new Set([a]), todo = [a];
+    while (todo.length) { const x = todo.pop(); if (x === b) return true; for (const y of rsucc.get(x)) if (!seen.has(y)) { seen.add(y); todo.push(y); } }
+    return false;
+  };
+  for (const e of edges) {
+    if (e.kind !== 'done' || !info.has(e.from) || !info.has(e.to)) continue;
+    for (const x of edges) {
+      if (x.to !== e.from || x.kind === 'loopin' || x.from === e.from || x.from === e.to || !info.has(x.from)) continue;
+      if (rsucc.get(x.from).includes(e.to) || reaches(e.to, x.from)) continue;
+      rsucc.get(x.from).push(e.to); rpred.get(e.to).push(x.from);
+    }
+  }
+  const indeg = new Map(ids.map(id => [id, rpred.get(id).length]));
+  const topo = [], q = ids.filter(id => !indeg.get(id));
+  while (q.length) {
+    const u = q.shift(); topo.push(u);
+    for (const v of rsucc.get(u)) { indeg.set(v, indeg.get(v) - 1); if (!indeg.get(v)) q.push(v); }
+  }
+  const rank = new Map(ids.map(id => [id, 0]));
+  for (const u of topo) for (const v of rsucc.get(u)) rank.set(v, Math.max(rank.get(v), rank.get(u) + 1));
+  for (let i = topo.length - 1; i >= 0; i--) {
+    const u = topo[i];
+    if (!rpred.get(u).length && rsucc.get(u).length) rank.set(u, Math.min(...rsucc.get(u).map(v => rank.get(v))) - 1);
+  }
+
+  // 3. separate pieces (not linked to each other) are laid side by side
+  const parent = new Map(ids.map(id => [id, id]));
+  const find = x => { while (parent.get(x) !== x) { parent.set(x, parent.get(parent.get(x))); x = parent.get(x); } return x; };
+  for (const [u, v] of pairs) { const a = find(u), b = find(v); if (a !== b) parent.set(b, a); }
+  const comps = new Map();
+  ids.forEach(id => { const r = find(id); if (!comps.has(r)) comps.set(r, []); comps.get(r).push(id); });
+
+  let cursor = 0, ci = 0;
+  for (const members of (lanesOn ? [ids] : comps.values())) {   // swimlanes: one picture, lanes side by side
+    if (!members.length) continue;
+    const minR = Math.min(...members.map(id => rank.get(id)));
+    let layers = [];
+    const V = new Map(), up = new Map(), down = new Map();
+    const addV = (vid, layer, l, r, psize, dummy, ln) => {
+      V.set(vid, { id: vid, dummy, l, r, psize, layer, s: 0, ln });
+      (layers[layer] ||= []).push(vid);
+      up.set(vid, []); down.set(vid, []);
+    };
+    for (const id of members) { const n = info.get(id), x = ext(n); addV(id, rank.get(id) - minR, x.l, x.r, psz(n), false, lanesOn ? (n.lane || 0) : 0); }
+    let dn = 0;
+    const compChains = [];
+    for (const u of members) for (const v of dsucc.get(u)) {
+      let prev = u;
+      const chain = [], ru = rank.get(u) - minR, rv = rank.get(v) - minR;
+      for (let r = ru + 1; r < rv; r++) {
+        const did = `\u0002${ci}_${dn++}`;
+        addV(did, r, DUMMY / 2, DUMMY / 2, 0, true, V.get(u).ln);
+        chain.push(did); down.get(prev).push(did); up.get(did).push(prev); prev = did;
+      }
+      down.get(prev).push(v); up.get(v).push(prev);
+      out.chains[u + SEP + v] = chain;
+      if (chain.length) compChains.push([u, v, chain]);
+    }
+    for (let l = 0; l < layers.length; l++) layers[l] ||= [];
+
+    // 4. order inside each row: depth-first start, then barycenter sweeps
+    const seen = new Set(), ord = layers.map(() => []);
+    const visit = vid => { if (seen.has(vid)) return; seen.add(vid); ord[V.get(vid).layer].push(vid); for (const w of down.get(vid)) visit(w); };
+    for (const Ls of layers) for (const vid of Ls) if (!up.get(vid).length) visit(vid);
+    for (const Ls of layers) for (const vid of Ls) visit(vid);
+    layers = ord;
+    if (lanesOn) layers.forEach(Ls => Ls.sort((a, b) => V.get(a).ln - V.get(b).ln));
+    const idx = new Map();
+    const setIdx = () => layers.forEach(Ls => Ls.forEach((v, i) => idx.set(v, i)));
+    setIdx();
+    const crossings = () => {
+      let c = 0;
+      for (let l = 0; l < layers.length - 1; l++) {
+        const es = [];
+        for (const u of layers[l]) for (const w of down.get(u)) es.push([idx.get(u), idx.get(w)]);
+        for (let i = 0; i < es.length; i++) for (let j = i + 1; j < es.length; j++) if ((es[i][0] - es[j][0]) * (es[i][1] - es[j][1]) < 0) c++;
+      }
+      return c;
+    };
+    let best = layers.map(a => a.slice()), bestC = crossings();
+    for (let it = 0; it < 16 && bestC > 0; it++) {
+      const goingDown = it % 2 === 0;
+      const order = [...layers.keys()];
+      if (!goingDown) order.reverse();
+      for (const l of order.slice(1)) {
+        const nb = goingDown ? up : down;
+        const bc = new Map(layers[l].map((v, i) => { const ns = nb.get(v); return [v, ns.length ? ns.reduce((a, w) => a + idx.get(w), 0) / ns.length : i]; }));
+        layers[l].sort((a, b) => (V.get(a).ln - V.get(b).ln) || (bc.get(a) - bc.get(b)));
+        layers[l].forEach((v, i) => idx.set(v, i));
+      }
+      const c = crossings();
+      if (c < bestC) { bestC = c; best = layers.map(a => a.slice()); }
+    }
+    layers = best; setIdx();
+
+    // 5. place across the row: pull each box toward its neighbours, keep gaps (isotonic regression)
+    //    each swimlane is placed on its own (one segment of the row per lane)
+    const gap = (a, b) => V.get(a).r + V.get(b).l + ((V.get(a).dummy || V.get(b).dummy) ? 18 : NODE_GAP);
+    const segs = Ls => {
+      const res = [];
+      for (const v of Ls) { const last = res[res.length - 1]; if (last && V.get(last[0]).ln === V.get(v).ln) last.push(v); else res.push([v]); }
+      return res;
+    };
+    for (const Ls of layers) for (const sg of segs(Ls)) {
+      let x = 0;
+      sg.forEach((v, i) => { if (i) x += gap(sg[i - 1], v); V.get(v).s = x; });
+      sg.forEach(v => { V.get(v).s -= x / 2; });
+    }
+    const placeRow = (Ls, desired) => {
+      const n = Ls.length;
+      if (!n) return;
+      const o = [0];
+      for (let i = 1; i < n; i++) o[i] = o[i - 1] + gap(Ls[i - 1], Ls[i]);
+      const blocks = [];
+      for (let i = 0; i < n; i++) {
+        blocks.push({ sum: desired[i] - o[i], cnt: 1 });
+        while (blocks.length > 1) {
+          const a = blocks[blocks.length - 2], b = blocks[blocks.length - 1];
+          if (a.sum / a.cnt <= b.sum / b.cnt) break;
+          a.sum += b.sum; a.cnt += b.cnt; blocks.pop();
+        }
+      }
+      let i = 0;
+      for (const b of blocks) { const m = b.sum / b.cnt; for (let j = 0; j < b.cnt; j++, i++) V.get(Ls[i]).s = m + o[i]; }
+    };
+    const sweep = goingDown => {
+      const order = [...layers.keys()];
+      if (!goingDown) order.reverse();
+      const nbm = goingDown ? up : down;
+      for (const l of order) for (const sg of segs(layers[l])) {
+        placeRow(sg, sg.map(v => {
+          const me = V.get(v), ns = nbm.get(v).filter(w => V.get(w).ln === me.ln);
+          return ns.length ? ns.reduce((a, w) => a + V.get(w).s, 0) / ns.length : me.s;
+        }));
+      }
+    };
+    for (let it = 0; it < 6; it++) { sweep(true); sweep(false); }
+
+    // 6. long arrows (passing several rows) get one straight line where there is room - no small zig-zags
+    const inRow = new Map();
+    layers.forEach(Ls => Ls.forEach((v, i) => inRow.set(v, i)));
+    const fits = (vid, s) => {
+      const Ls = layers[V.get(vid).layer], i = inRow.get(vid), ln = V.get(vid).ln;
+      if (i > 0 && V.get(Ls[i - 1]).ln === ln && s < V.get(Ls[i - 1]).s + gap(Ls[i - 1], vid) - 0.5) return false;
+      if (i < Ls.length - 1 && V.get(Ls[i + 1]).ln === ln && s > V.get(Ls[i + 1]).s - gap(vid, Ls[i + 1]) + 0.5) return false;
+      return true;
+    };
+    for (const [u, v, chain] of compChains) {
+      const ends = [u, v].filter(x => V.get(x).ln === V.get(chain[0]).ln).map(x => V.get(x).s);
+      let best = null, bestCost = Infinity;
+      for (const c of [...ends, ...chain.map(d => V.get(d).s)]) {
+        if (!chain.every(d => fits(d, c))) continue;
+        const cost = chain.reduce((a, d) => a + Math.abs(V.get(d).s - c), 0) - (ends.some(x => Math.abs(x - c) < 0.5) ? 25 : 0);
+        if (cost < bestCost) { bestCost = cost; best = c; }
+      }
+      if (best != null) chain.forEach(d => { V.get(d).s = best; });
+    }
+
+    // 7. rows along the flow
+    const maxP = layers.map(Ls => Math.max(0, ...Ls.map(v => V.get(v).psize)));
+    const lp = [];
+    layers.forEach((Ls, l) => { lp[l] = l ? lp[l - 1] + maxP[l - 1] / 2 + LAYER_GAP + maxP[l] / 2 : maxP[0] / 2; });
+
+    // 8. side by side: separate pieces, or swimlanes (each lane gets a band, its boxes centred in it)
+    const nl = lanesOn ? laneNames.length : 1, lo = new Array(nl).fill(Infinity), hi = new Array(nl).fill(-Infinity), shift = [];
+    for (const v of V.values()) { lo[v.ln] = Math.min(lo[v.ln], v.s - v.l); hi[v.ln] = Math.max(hi[v.ln], v.s + v.r); }
+    for (let k = 0; k < nl; k++) {
+      const empty = lo[k] === Infinity, content = empty ? 0 : hi[k] - lo[k];
+      if (!lanesOn) { shift[k] = cursor - lo[k]; cursor += content + COMP_GAP; continue; }
+      const width = Math.max(content + LANE_PAD * 2, tw(laneNames[k], F_LANE) + 44, 150);
+      shift[k] = empty ? 0 : cursor + (width - content) / 2 - lo[k];
+      out.lanes.push({ name: laneNames[k], s0: cursor, s1: cursor + width });
+      cursor += width;
+    }
+    for (const v of V.values()) {
+      const s = v.s + shift[v.ln], p = lp[v.layer], band = { top: p - maxP[v.layer] / 2, bottom: p + maxP[v.layer] / 2 };
+      if (v.dummy) out.dummy[v.id] = { s, p, top: band.top, bottom: band.bottom };
+      else { out.pos[v.id] = TB ? { x: s, y: p } : { x: p, y: s }; out.band[v.id] = band; out.comp[v.id] = ci; }
+    }
+    ci++;
+  }
+  return out;
+}
+
+/* ================================================================
+   Positions + arrow routing
+   ================================================================ */
+function positions() {
+  const mp = mpos(), P = {};
+  for (const n of M.nodes.values()) {
+    const q = mp[n.id] || L.pos[n.id] || { x: 0, y: 0 };
+    P[n.id] = { x: q.x, y: q.y, w: n.w, h: n.h, kind: n.kind, nw: n.nw || 0, nh: n.nh || 0 };
+  }
+  return P;
+}
+
+function simplify(pts) {
+  const o = [];
+  for (const p of pts) { const q = o[o.length - 1]; if (q && Math.abs(q.x - p.x) < 0.5 && Math.abs(q.y - p.y) < 0.5) continue; o.push(p); }
+  for (let i = o.length - 2; i > 0; i--) {
+    const a = o[i - 1], b = o[i], c = o[i + 1];
+    if ((Math.abs(a.x - b.x) < 0.5 && Math.abs(b.x - c.x) < 0.5) || (Math.abs(a.y - b.y) < 0.5 && Math.abs(b.y - c.y) < 0.5)) o.splice(i, 1);
+  }
+  return o;
+}
+
+function routeAll(P) {
+  const TB = S.dir === 'TB', mp = mpos();
+  // s/p = across/along the flow; nx = room a note takes on the right (top-down) or below (left-right)
+  const A = id => {
+    const p = P[id], nx = TB ? (p.nw ? NOTE_GAP + p.nw : 0) : (p.nh ? NOTE_GAP + p.nh : 0), np = TB ? p.nh : p.nw;
+    return TB ? { s: p.x, p: p.y, ss: p.w, ps: p.h, k: p.kind, nx, np } : { s: p.y, p: p.x, ss: p.h, ps: p.w, k: p.kind, nx, np };
+  };
+  const XY = q => TB ? { x: q.s, y: q.p } : { x: q.p, y: q.s };
+  const sideIn = q => (q.k === 'io' && TB) ? SKEW / 2 : 0;
+  const endIn = q => (q.k === 'io' && !TB) ? SKEW / 2 : 0;
+  const outCount = new Map(), groups = new Map(), par = new Map();
+  for (const e of M.edges) {
+    outCount.set(e.from, (outCount.get(e.from) || 0) + 1);
+    const g = e.from + SEP + e.to;
+    if (!groups.has(g)) groups.set(g, []);
+    groups.get(g).push(e.id);
+  }
+  for (const list of groups.values()) list.forEach((id, i) => par.set(id, [i, list.length]));
+  const lanes = new Map(), R = new Map();
+  for (const e of M.edges) {
+    if (!P[e.from] || !P[e.to]) continue;
+    const u = A(e.from), v = A(e.to);
+    let pts;
+    if (e.from === e.to) {
+      const x = u.s + u.ss / 2 - sideIn(u);
+      pts = [{ s: x, p: u.p - 9 }, { s: x + 24, p: u.p - 9 }, { s: x + 24, p: u.p + 9 }, { s: x, p: u.p + 9 }];
+    } else if (v.p - v.ps / 2 >= u.p + u.ps / 2 + 6) {
+      // forward: leave from the bottom, enter at the top (bend in the gap between rows)
+      const moved = mp[e.from] || mp[e.to];
+      const chain = moved ? [] : (L.chains[e.from + SEP + e.to] || []).map(id => L.dummy[id]).filter(Boolean);
+      const uB = u.p + u.ps / 2 - endIn(u), vT = v.p - v.ps / 2 + endIn(v);
+      const uBand = (!mp[e.from] && L.band[e.from]) ? L.band[e.from].bottom : u.p + u.ps / 2;
+      const vBand = (!mp[e.to] && L.band[e.to]) ? L.band[e.to].top : v.p - v.ps / 2;
+      // several arrows between the same two boxes (e.g. Yes and No both to one box): spread them apart
+      const [pk, pn] = par.get(e.id);
+      const off = pn > 1 ? (pk - (pn - 1) / 2) * Math.min(20, v.ss / (pn + 1)) : 0;
+      const dip = (q, o) => q.k === 'decision' ? Math.abs(o) * q.ps / q.ss : 0;   // diamond edge slopes away from the tip
+      if (pn === 1 && u.k === 'decision' && !chain.length && (outCount.get(e.from) || 0) >= 2 && Math.abs(v.s - u.s) > u.ss / 2 + 6 && !(v.s > u.s && u.nx)) {
+        const sx = v.s > u.s ? u.s + u.ss / 2 : u.s - u.ss / 2;
+        pts = [{ s: sx, p: u.p }, { s: v.s, p: u.p }, { s: v.s, p: vT }];
+      } else {
+        let start = { s: u.s + off, p: uB - dip(u, off) };
+        if (pn === 2 && u.k === 'decision') start = { s: pk ? u.s + u.ss / 2 : u.s - u.ss / 2, p: u.p };
+        pts = [start];
+        let cs = start.s, cb = uBand;
+        const near = (a, b) => Math.abs(a - b) < 2.5;   // a 1-2 px step is drawn straight
+        for (const d of chain) {
+          const mid = (cb + d.top) / 2, ns = near(cs, d.s + off) ? cs : d.s + off;
+          pts.push({ s: cs, p: mid }, { s: ns, p: mid });
+          cs = ns; cb = d.bottom;
+        }
+        const mid = (cb + vBand) / 2, es = near(cs, v.s + off) ? cs : v.s + off;
+        pts.push({ s: cs, p: mid }, { s: es, p: mid }, { s: es, p: vT + dip(v, es - v.s) });
+      }
+    } else if (v.p + v.ps / 2 > u.p - u.ps / 2 - 6) {
+      // same row: side to side
+      const sg = v.s >= u.s ? 1 : -1;
+      const a = { s: u.s + sg * (u.ss / 2 - sideIn(u)), p: u.p }, b = { s: v.s - sg * (v.ss / 2 - sideIn(v)), p: v.p };
+      const ms = (a.s + b.s) / 2;
+      pts = [a, { s: ms, p: a.p }, { s: ms, p: b.p }, b];
+    } else {
+      // going back up (a loop): run up a lane beside the boxes, pick the way that hits no box
+      const comp = L.comp[e.from], g = 14, above = v.p - v.ps / 2 - g, below = u.p + u.ps / 2 + g;
+      let maxR = Math.max(u.s + u.ss / 2, v.s + v.ss / 2), minL = Math.min(u.s - u.ss / 2, v.s - v.ss / 2);
+      for (const id in P) {
+        if (L.comp[id] !== comp) continue;
+        const q = A(id);
+        if (q.p + q.ps / 2 >= above && q.p - q.ps / 2 <= below) { maxR = Math.max(maxR, q.s + q.ss / 2 + q.nx); minL = Math.min(minL, q.s - q.ss / 2); }
+      }
+      const k = lanes.get(comp) || 0;
+      lanes.set(comp, k + 1);
+      const rl = maxR + 28 + k * 16, ll = minL - 28 - k * 16;
+      const uR = { s: u.s + u.ss / 2 - sideIn(u), p: u.p }, uL = { s: u.s - u.ss / 2 + sideIn(u), p: u.p }, uB = { s: u.s, p: u.p + u.ps / 2 - endIn(u) };
+      const vR = { s: v.s + v.ss / 2 - sideIn(v), p: v.p }, vL = { s: v.s - v.ss / 2 + sideIn(v), p: v.p }, vT = { s: v.s, p: v.p - v.ps / 2 + endIn(v) };
+      const ways = [
+        [uR, { s: rl, p: u.p }, { s: rl, p: v.p }, vR],
+        [uR, { s: rl, p: u.p }, { s: rl, p: above }, { s: v.s, p: above }, vT],
+        [uL, { s: ll, p: u.p }, { s: ll, p: v.p }, vL],
+        [uL, { s: ll, p: u.p }, { s: ll, p: above }, { s: v.s, p: above }, vT],
+        [uB, { s: u.s, p: below }, { s: rl, p: below }, { s: rl, p: above }, { s: v.s, p: above }, vT],
+        [uB, { s: u.s, p: below }, { s: ll, p: below }, { s: ll, p: above }, { s: v.s, p: above }, vT],
+      ];
+      const boxes = Object.keys(P).map(A);
+      const hits = w => {
+        let c = 0;
+        for (let i = 1; i < w.length; i++) {
+          const a = w[i - 1], b = w[i], s0 = Math.min(a.s, b.s), s1 = Math.max(a.s, b.s), p0 = Math.min(a.p, b.p), p1 = Math.max(a.p, b.p);
+          for (const q of boxes) {
+            const hp = Math.max(q.ps, q.nx ? q.np : 0) / 2;
+            if (s0 < q.s + q.ss / 2 + q.nx - 1 && s1 > q.s - q.ss / 2 + 1 && p0 < q.p + hp - 1 && p1 > q.p - hp + 1) c++;
+          }
+        }
+        return c;
+      };
+      let bestHits = Infinity;
+      for (const w of ways) { const c = hits(w); if (c < bestHits) { bestHits = c; pts = w; } if (!c) break; }
+    }
+    R.set(e.id, simplify(pts.map(XY)));
+  }
+  return R;
+}
+
+function roundPath(pts, r = 9) {
+  if (pts.length < 2) return '';
+  let d = `M${f1(pts[0].x)},${f1(pts[0].y)}`;
+  for (let i = 1; i < pts.length - 1; i++) {
+    const p0 = pts[i - 1], p1 = pts[i], p2 = pts[i + 1];
+    const d1 = Math.hypot(p1.x - p0.x, p1.y - p0.y), d2 = Math.hypot(p2.x - p1.x, p2.y - p1.y);
+    if (!d1 || !d2) continue;
+    const rr = Math.min(r, d1 / 2, d2 / 2);
+    const a = { x: p1.x + (p0.x - p1.x) / d1 * rr, y: p1.y + (p0.y - p1.y) / d1 * rr };
+    const b = { x: p1.x + (p2.x - p1.x) / d2 * rr, y: p1.y + (p2.y - p1.y) / d2 * rr };
+    d += ` L${f1(a.x)},${f1(a.y)} Q${f1(p1.x)},${f1(p1.y)} ${f1(b.x)},${f1(b.y)}`;
+  }
+  const z = pts[pts.length - 1];
+  return d + ` L${f1(z.x)},${f1(z.y)}`;
+}
+
+function labelPoint(pts) {
+  const segs = [];
+  let total = 0;
+  for (let i = 1; i < pts.length; i++) { const l = Math.hypot(pts[i].x - pts[i - 1].x, pts[i].y - pts[i - 1].y); segs.push(l); total += l; }
+  let d = Math.min(segs[0] >= 40 ? 20 : segs[0] + 20, total * 0.6);
+  for (let i = 0; i < segs.length; i++) {
+    if (d <= segs[i] || i === segs.length - 1) {
+      const t = segs[i] ? Math.min(1, d / segs[i]) : 0;
+      return { x: pts[i].x + (pts[i + 1].x - pts[i].x) * t, y: pts[i].y + (pts[i + 1].y - pts[i].y) * t };
+    }
+    d -= segs[i];
+  }
+  return pts[0];
+}
+
+// outer box of a node incl. its note (world coordinates)
+function nodeExtent(p) {
+  const TB = S.dir === 'TB';
+  let x0 = p.x - p.w / 2, x1 = p.x + p.w / 2, y0 = p.y - p.h / 2, y1 = p.y + p.h / 2;
+  if (p.nw) {
+    if (TB) { x1 = p.x + p.w / 2 + NOTE_GAP + p.nw; y0 = Math.min(y0, p.y - p.nh / 2); y1 = Math.max(y1, p.y + p.nh / 2); }
+    else { y1 = p.y + p.h / 2 + NOTE_GAP + p.nh; x0 = Math.min(x0, p.x - p.nw / 2); x1 = Math.max(x1, p.x + p.nw / 2); }
+  }
+  return { x0, y0, x1, y1 };
+}
+
+// swimlane bands (world coordinates): lanes are columns top-down, rows left-right
+function laneRects(P) {
+  if (!M.lanes.length || L.lanes.length !== M.lanes.length) return [];
+  const TB = S.dir === 'TB', band = L.lanes.map(l => ({ s0: l.s0, s1: l.s1 }));
+  let p0 = Infinity, p1 = -Infinity;
+  for (const n of M.nodes.values()) {
+    const q = P[n.id];
+    if (!q) continue;
+    const e = nodeExtent(q), b = band[n.lane];
+    p0 = Math.min(p0, TB ? e.y0 : e.x0); p1 = Math.max(p1, TB ? e.y1 : e.x1);
+    if (b) { b.s0 = Math.min(b.s0, (TB ? e.x0 : e.y0) - 10); b.s1 = Math.max(b.s1, (TB ? e.x1 : e.y1) + 10); }
+  }
+  if (p0 === Infinity) { p0 = 0; p1 = 120; }
+  const a = p0 - LANE_PAD - LANE_HEAD, z = p1 + LANE_PAD;
+  return M.lanes.map((name, i) => {
+    const b = band[i];
+    return TB ? { x: b.s0, y: a, w: b.s1 - b.s0, h: z - a, name, i, hx: b.s0, hy: a, hw: b.s1 - b.s0, hh: LANE_HEAD }
+      : { x: a, y: b.s0, w: z - a, h: b.s1 - b.s0, name, i, hx: a, hy: b.s0, hw: LANE_HEAD, hh: b.s1 - b.s0 };
+  });
+}
+
+function bbox(P, R) {
+  let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+  for (const id in P) { const e = nodeExtent(P[id]); x0 = Math.min(x0, e.x0); y0 = Math.min(y0, e.y0); x1 = Math.max(x1, e.x1); y1 = Math.max(y1, e.y1); }
+  for (const pts of R.values()) for (const q of pts) { x0 = Math.min(x0, q.x); y0 = Math.min(y0, q.y); x1 = Math.max(x1, q.x); y1 = Math.max(y1, q.y); }
+  for (const r of laneRects(P)) { x0 = Math.min(x0, r.x); y0 = Math.min(y0, r.y); x1 = Math.max(x1, r.x + r.w); y1 = Math.max(y1, r.y + r.h); }
+  if (x0 === Infinity) return null;
+  return { x: x0, y: y0, w: x1 - x0, h: y1 - y0 };
+}
+
+/* ================================================================
+   Drawing (same code for screen and export)
+   ================================================================ */
+// fill / border / text colour of a box (red for error words, green for success words)
+function nodeColors(n, C) {
+  if (n.bad && n.kind === 'terminal') return { f: C.errTermF, s: C.errTermF, t: C.errTermT };
+  if (n.bad) return { f: C.errF, s: C.errS, t: C.text };
+  if (n.good && n.kind === 'terminal') return { f: C.okTermF, s: C.okTermF, t: C.okTermT };
+  if (n.good) return { f: C.okF, s: C.okS, t: C.text };
+  return { f: C[n.kind + 'F'], s: C[n.kind + 'S'], t: C[n.kind + 'T'] || C.text };
+}
+// Yes arrows green, No arrows red
+const tone = e => e.label === 'Yes' ? 'yes' : e.label === 'No' ? 'no' : '';
+
+function nodeSvg(n, p, C, live) {
+  const w = n.w, h = n.h, hw = w / 2, hh = h / 2;
+  const { f, s, t: tc } = nodeColors(n, C);
+  const st = `fill:${f};stroke:${s};stroke-width:1.5;stroke-linejoin:round`;
+  let sh;
+  if (n.kind === 'decision') sh = `<polygon points="0,${f1(-hh)} ${f1(hw)},0 0,${f1(hh)} ${f1(-hw)},0" style="${st}"/>`;
+  else if (n.kind === 'io') sh = `<polygon points="${f1(-hw + SKEW)},${f1(-hh)} ${f1(hw)},${f1(-hh)} ${f1(hw - SKEW)},${f1(hh)} ${f1(-hw)},${f1(hh)}" style="${st}"/>`;
+  else if (n.kind === 'terminal') sh = `<rect x="${f1(-hw)}" y="${f1(-hh)}" width="${f1(w)}" height="${f1(h)}" rx="${f1(hh)}" style="${st}"/>`;
+  else if (n.kind === 'loop') sh = `<polygon points="${f1(-hw + HEX)},${f1(-hh)} ${f1(hw - HEX)},${f1(-hh)} ${f1(hw)},0 ${f1(hw - HEX)},${f1(hh)} ${f1(-hw + HEX)},${f1(hh)} ${f1(-hw)},0" style="${st};stroke-width:2"/>`;
+  else if (n.kind === 'database') {
+    const top = -hh + DB_RY, bot = hh - DB_RY;
+    sh = `<path d="M${f1(-hw)},${f1(top)} V${f1(bot)} A${f1(hw)},${DB_RY} 0 0 0 ${f1(hw)},${f1(bot)} V${f1(top)} A${f1(hw)},${DB_RY} 0 0 0 ${f1(-hw)},${f1(top)} Z" style="${st}"/>`
+      + `<ellipse cx="0" cy="${f1(top)}" rx="${f1(hw)}" ry="${DB_RY}" style="${st}"/>`;
+  }
+  else if (n.kind === 'person') {
+    const cx = 9 - Math.sqrt(81 - 25);
+    sh = `<rect x="${f1(-hw)}" y="${f1(-hh)}" width="${f1(w)}" height="${f1(h)}" rx="9" style="fill:${f};stroke:none"/>`
+      + `<path d="M${f1(-hw + cx)},${f1(-hh + 4)} A9,9 0 0 1 ${f1(-hw + 9)},${f1(-hh)} H${f1(hw - 9)} A9,9 0 0 1 ${f1(hw - cx)},${f1(-hh + 4)} Z" style="fill:${C.band}"/>`
+      + `<rect x="${f1(-hw)}" y="${f1(-hh)}" width="${f1(w)}" height="${f1(h)}" rx="9" style="fill:none;stroke:${s};stroke-width:1.2"/>`;
+  } else sh = `<rect x="${f1(-hw)}" y="${f1(-hh)}" width="${f1(w)}" height="${f1(h)}" rx="8" style="${st}"/>`;
+
+  const rows = [
+    ...n.txt.map(t => [t, LINE_H, n.kind === 'person' ? F_NAME : F_LABEL, tc]),
+    ...n.ttxt.map(t => [t, TITLE_H, F_TITLE, C.sub]),
+  ];
+  const total = rows.reduce((a, r) => a + r[1], 0);
+  let y = -total / 2 + (n.kind === 'person' ? 2 : n.kind === 'database' ? DB_RY / 2 : 0), txt = '';
+  for (const [t, lh, font, col] of rows) {
+    txt += `<text x="0" y="${f1(y + lh / 2)}" text-anchor="middle" dominant-baseline="central" style="font:${font};fill:${col}">${esc(t)}</text>`;
+    y += lh;
+  }
+  // sticky note: right of the box (top-down) or below it (left-right), joined by a dotted line
+  let note = '';
+  if (n.ntxt) {
+    const TB = S.dir === 'TB', nw = n.nw, nh = n.nh, fold = 9;
+    const nx = TB ? hw + NOTE_GAP : -nw / 2, ny = TB ? -nh / 2 : hh + NOTE_GAP;
+    const join = TB ? `M${f1(hw - (n.kind === 'io' ? SKEW / 2 : 0))},0 H${f1(nx)}` : `M0,${f1(hh)} V${f1(ny)}`;
+    note = `<path d="${join}" style="fill:none;stroke:${C.noteS};stroke-width:1.3;stroke-dasharray:3 3"/>`
+      + `<path d="M${f1(nx)},${f1(ny)} h${f1(nw - fold)} l${fold},${fold} v${f1(nh - fold)} h${f1(-nw)} z" style="fill:${C.noteF};stroke:${C.noteS};stroke-width:1"/>`
+      + `<path d="M${f1(nx + nw - fold)},${f1(ny)} v${fold} h${fold}" style="fill:none;stroke:${C.noteS};stroke-width:1"/>`
+      + n.ntxt.map((t, k) => `<text x="${f1(nx + 9)}" y="${f1(ny + 7 + k * NOTE_LH + NOTE_LH / 2)}" dominant-baseline="central" style="font:${F_NOTE};fill:${C.noteText}">${esc(t)}</text>`).join('');
+  }
+  // step number badge on the top-left corner
+  let badge = '';
+  if (S.nums && n.num) {
+    const pos = { decision: [-hw / 2 - 6, -hh / 2 - 5], io: [-hw + SKEW + 2, -hh + 1], loop: [-hw + HEX + 2, -hh + 1], database: [-hw + 3, -hh + DB_RY] }[n.kind] || [-hw + 3, -hh + 3];
+    badge = `<circle cx="${f1(pos[0])}" cy="${f1(pos[1])}" r="10" style="fill:${C.num};stroke:${C.labelBg};stroke-width:1.5"/>`
+      + `<text x="${f1(pos[0])}" y="${f1(pos[1] + 0.5)}" text-anchor="middle" dominant-baseline="central" style="font:${F_NUM};fill:${C.numText}">${n.num}</text>`;
+  }
+  let ring = '', handles = '';
+  if (live) {
+    ring = `<rect class="ring" x="${f1(-hw - 6)}" y="${f1(-hh - 6)}" width="${f1(w + 12)}" height="${f1(h + 12)}" rx="11"/>`;
+    const si = n.kind === 'io' ? SKEW / 2 : 0;
+    handles = [['t', 0, -hh], ['r', hw - si, 0], ['b', 0, hh], ['l', -hw + si, 0]]
+      .map(([k, x, yy]) => `<circle class="handle" data-port="${k}" cx="${f1(x)}" cy="${f1(yy)}" r="5.5"/>`).join('');
+  }
+  const cls = live ? ` class="node${sel && sel.type === 'node' && sel.id === n.id ? ' sel' : ''}${linked.has(n.id) ? ' linked' : ''}" data-id="${esc(n.id)}"` : '';
+  return `<g${cls} transform="translate(${f1(p.x)},${f1(p.y)})">${ring}${sh}${txt}${note}${badge}${handles}</g>`;
+}
+
+function laneSvg(rects, C) {
+  const TB = S.dir === 'TB';
+  return rects.map(r => {
+    const cx = r.hx + r.hw / 2, cy = r.hy + r.hh / 2;
+    const label = TB
+      ? `<text x="${f1(cx)}" y="${f1(cy)}" text-anchor="middle" dominant-baseline="central" style="font:${F_LANE};fill:${C.laneHeadText}">${esc(r.name)}</text>`
+      : `<text transform="translate(${f1(cx)},${f1(cy)}) rotate(-90)" text-anchor="middle" dominant-baseline="central" style="font:${F_LANE};fill:${C.laneHeadText}">${esc(r.name)}</text>`;
+    return `<g class="lane"><rect x="${f1(r.x)}" y="${f1(r.y)}" width="${f1(r.w)}" height="${f1(r.h)}" style="fill:${r.i % 2 ? C.laneB : C.laneA};stroke:${C.laneLine};stroke-width:1"/>`
+      + `<rect x="${f1(r.hx)}" y="${f1(r.hy)}" width="${f1(r.hw)}" height="${f1(r.hh)}" style="fill:${C.laneHead};stroke:${C.laneLine};stroke-width:1"/>${label}</g>`;
+  }).join('');
+}
+
+function edgeSvg(e, pts, C, live) {
+  const d = roundPath(pts), t = tone(e), col = t ? C[t] : C.edge, mk = (live ? 'arw' : 'xarw') + (t ? '-' + t : '');
+  const line = `<path class="line" d="${d}" style="fill:none;stroke:${col};stroke-width:${t ? 1.8 : 1.6};stroke-linejoin:round" marker-end="url(#${mk})"/>`;
+  if (!live) return line;
+  const isSel = sel && sel.type === 'edge' && sel.id === e.id;
+  return `<g class="edge${isSel ? ' sel' : ''}" data-eid="${esc(e.id)}"><path class="hit" d="${d}"/>${line}</g>`;
+}
+
+function labelSvg(e, pts, C) {
+  if (!e.label) return '';
+  const q = labelPoint(pts), w = tw(e.label, F_EDGE) + 14, t = tone(e);
+  const bg = t ? C[t + 'Bg'] : C.labelBg, bd = t ? C[t] : C.edge, tx = t ? C[t + 'Text'] : C.edgeText;
+  return `<g class="elabel" transform="translate(${f1(q.x)},${f1(q.y)})"><rect x="${f1(-w / 2)}" y="-9" width="${f1(w)}" height="18" rx="9" style="fill:${bg};stroke:${bd};stroke-width:1"/>`
+    + `<text x="0" y="0.5" text-anchor="middle" dominant-baseline="central" style="font:${F_EDGE};fill:${tx}">${esc(e.label)}</text></g>`;
+}
+
+const svg = $('#svg'), vp = $('#vp'), gLanes = $('#g-lanes'), gEdges = $('#g-edges'), gNodes = $('#g-nodes'), gLabels = $('#g-labels'), gTemp = $('#g-temp');
+const wrapEl = $('#canvas-wrap'), ta = $('#ta');
+
+function render() {
+  const P = positions(), R = routeAll(P);
+  let es = '', ls = '', ns = '';
+  for (const e of M.edges) {
+    const pts = R.get(e.id);
+    if (!pts || pts.length < 2) continue;
+    es += edgeSvg(e, pts, LIVE, true);
+    ls += labelSvg(e, pts, LIVE);
+  }
+  for (const n of M.nodes.values()) ns += nodeSvg(n, P[n.id], LIVE, true);
+  gLanes.innerHTML = laneSvg(laneRects(P), LIVE);
+  gEdges.innerHTML = es; gNodes.innerHTML = ns; gLabels.innerHTML = ls;
+  lastP = P; lastR = R;
+}
+
+function applySel() {
+  for (const g of gNodes.children) {
+    const id = g.dataset.id;
+    g.classList.toggle('sel', !!sel && sel.type === 'node' && sel.id === id);
+    g.classList.toggle('linked', linked.has(id));
+  }
+  for (const g of gEdges.children) g.classList.toggle('sel', !!sel && sel.type === 'edge' && sel.id === g.dataset.eid);
+}
+
+/* ================================================================
+   View: pan / zoom / fit
+   ================================================================ */
+function applyView() {
+  vp.setAttribute('transform', `translate(${f1(view.tx)},${f1(view.ty)}) scale(${view.k.toFixed(4)})`);
+  wrapEl.style.backgroundSize = `${20 * view.k}px ${20 * view.k}px`;
+  wrapEl.style.backgroundPosition = `${view.tx}px ${view.ty}px`;
+  $('#zoom-val').textContent = Math.round(view.k * 100) + '%';
+}
+function toWorld(cx, cy) { const r = svg.getBoundingClientRect(); return { x: (cx - r.left - view.tx) / view.k, y: (cy - r.top - view.ty) / view.k }; }
+function toClient(x, y) { const r = svg.getBoundingClientRect(); return { x: x * view.k + view.tx + r.left, y: y * view.k + view.ty + r.top }; }
+function fit() {
+  const r = svg.getBoundingClientRect(), b = bbox(lastP, lastR);
+  const padL = 92, pad = 40;
+  if (!b || !r.width) { view = { k: 1, tx: r.width / 2, ty: r.height / 2 }; applyView(); return; }
+  const aw = Math.max(60, r.width - padL - pad), ah = Math.max(60, r.height - pad * 2 - 20);
+  const k = clamp(Math.min(aw / Math.max(b.w, 1), ah / Math.max(b.h, 1)), 0.2, 1.25);
+  view = { k, tx: padL + (aw - b.w * k) / 2 - b.x * k, ty: pad + (ah - b.h * k) / 2 - b.y * k };
+  applyView();
+}
+function zoomAt(cx, cy, f) {
+  const r = svg.getBoundingClientRect(), k = clamp(view.k * f, 0.2, 3);
+  const px = cx - r.left, py = cy - r.top;
+  view.tx = px - (px - view.tx) * (k / view.k);
+  view.ty = py - (py - view.ty) * (k / view.k);
+  view.k = k; autoFit = false;
+  applyView();
+}
+
+/* ================================================================
+   Refresh pipeline: text -> model -> layout -> picture
+   ================================================================ */
+function refresh() {
+  clearTimeout(tRefresh); tRefresh = 0;
+  M = parse(S.text, S.shape);
+  for (const n of M.nodes.values()) measure(n);
+  for (const d in S.pos) for (const id in S.pos[d]) {
+    const n = M.nodes.get(id);
+    if (S.pos[d][id].drop && n && (n.inD || n.outD)) delete S.pos[d][id];
+  }
+  L = layoutGraph([...M.nodes.values()], M.edges, S.dir, M.lanes);
+  numberSteps();
+  if (sel && !(sel.type === 'node' ? M.nodes.has(sel.id) : M.edges.some(e => e.id === sel.id))) sel = null;
+  render();
+  if (autoFit) fit();
+  else if (keepInView) {
+    const r = svg.getBoundingClientRect(), b = bbox(lastP, lastR);
+    if (b) {
+      const a = toClient(b.x, b.y), z = toClient(b.x + b.w, b.y + b.h);
+      if (a.x < r.left + 70 || a.y < r.top || z.x > r.right || z.y > r.bottom - 40) fit();
+    }
+  }
+  keepInView = false;
+  renderEditorDecor();
+  renderProblems();
+  renderStatus();
+  $('#empty').hidden = M.nodes.size > 0;
+  saveLocal();
+}
+
+// step numbers follow the flow: row by row, left to right (Start/End and people get none)
+function numberSteps() {
+  const TB = S.dir === 'TB', key = n => { const q = L.pos[n.id] || { x: 0, y: 0 }; return TB ? [q.y, q.x] : [q.x, q.y]; };
+  const list = [...M.nodes.values()].filter(n => n.kind !== 'terminal' && n.kind !== 'person');
+  list.sort((a, b) => { const ka = key(a), kb = key(b); return (ka[0] - kb[0]) || (ka[1] - kb[1]); });
+  for (const n of M.nodes.values()) n.num = 0;
+  list.forEach((n, i) => { n.num = i + 1; });
+}
+
+function renderStatus() {
+  const n = M.nodes.size, e = M.edges.length;
+  let people = 0;
+  for (const x of M.nodes.values()) if (x.kind === 'person') people++;
+  const type = !n ? '' : people === n ? 'Org chart' : people ? 'Mixed' : 'Flowchart';
+  $('#status').textContent = n ? `${type} · ${n} box${n === 1 ? '' : 'es'} · ${e} link${e === 1 ? '' : 's'}` : 'Empty';
+}
+
+function renderProblems() {
+  const el = $('#problems');
+  if (!M.errors.length) {
+    el.className = 'problems ok';
+    el.textContent = S.text.trim() ? '✓ All lines understood' : 'Type one instruction per line';
+    return;
+  }
+  el.className = 'problems';
+  el.innerHTML = M.errors.map(e => `<button class="prob" data-line="${e.line}"><b>Line ${e.line + 1}</b>${esc(e.msg)}</button>`).join('');
+}
+
+/* editor decorations: line numbers, keyword colours, highlighted / error lines */
+const gutterIn = $('#gutter-in'), backIn = $('#backdrop-in');
+function hiLine(ln) {
+  if (RX.comment.test(ln)) return `<span class="cm">${esc(ln)}</span>`;
+  return esc(ln)
+    .replace(/\b(go\s*to|goes\s+to|then|if|else|otherwise|reports\s+to|for\s*each)\b/gi, '<span class="kw">$1</span>')
+    .replace(/^(\s*)(note|lane|when)\b/i, '$1<span class="kw">$2</span>')
+    .replace(/(<\/span>\s+)(next)\b/gi, '$1<span class="kw">$2</span>')
+    .replace(/\([^()]*\)/g, '<span class="tt">$&</span>');
+}
+function hlLines() {
+  const hl = new Set();
+  if (sel && sel.type === 'node') { const n = M.nodes.get(sel.id); if (n) { n.lines.forEach(l => hl.add(l)); n.spans.forEach(sp => hl.add(sp.line)); } }
+  else if (sel && sel.type === 'edge') { const e = M.edges.find(x => x.id === sel.id); if (e) hl.add(e.line); }
+  return hl;
+}
+function renderEditorDecor() {
+  const lines = ta.value.split('\n'), errs = new Set(M.errors.map(e => e.line)), hl = hlLines();
+  let g = '', b = '';
+  lines.forEach((ln, i) => {
+    const cls = (errs.has(i) ? ' err' : '') + (hl.has(i) ? ' hl' : '');
+    g += `<div class="gl${cls}">${i + 1}</div>`;
+    b += `<div class="bl${cls}">${hiLine(ln) || ' '}</div>`;
+  });
+  gutterIn.innerHTML = g; backIn.innerHTML = b;
+  syncScroll();
+}
+function syncScroll() {
+  backIn.style.transform = `translate(${-ta.scrollLeft}px,${-ta.scrollTop}px)`;
+  gutterIn.style.transform = `translateY(${-ta.scrollTop}px)`;
+}
+function revealLine(line) {
+  const top = line * LH, h = ta.clientHeight;
+  if (top < ta.scrollTop || top + LH + 20 > ta.scrollTop + h) ta.scrollTop = Math.max(0, top - h / 3);
+  syncScroll();
+}
+function goLine(line) {
+  const lines = ta.value.split('\n');
+  let pos = 0;
+  for (let i = 0; i < line && i < lines.length; i++) pos += lines[i].length + 1;
+  ta.focus();
+  ta.setSelectionRange(pos, pos + (lines[line] || '').length);
+  revealLine(line);
+}
+
+/* ================================================================
+   History (undo / redo) + local autosave
+   ================================================================ */
+const hist = { stack: [], i: -1 };
+let tRefresh = 0, tHist = 0;
+const snap = () => JSON.stringify({ text: S.text, pos: S.pos, shape: S.shape, dir: S.dir, nums: S.nums });
+function pushHistory() {
+  const s = snap();
+  if (hist.stack[hist.i] === s) return;
+  hist.stack = hist.stack.slice(0, hist.i + 1);
+  hist.stack.push(s);
+  if (hist.stack.length > 300) hist.stack.shift();
+  hist.i = hist.stack.length - 1;
+  updUndo();
+}
+function flushTyping() {
+  if (tHist) { clearTimeout(tHist); tHist = 0; pushHistory(); }
+  if (tRefresh) refresh();
+}
+function restore(s) {
+  const o = JSON.parse(s), caret = ta.selectionStart;
+  S.text = o.text; S.pos = o.pos; S.shape = o.shape; S.dir = o.dir; S.nums = !!o.nums;
+  ta.value = S.text;
+  if (document.activeElement === ta) ta.setSelectionRange(Math.min(caret, S.text.length), Math.min(caret, S.text.length));
+  updDirBtn(); updNumsBtn();
+  refresh();
+}
+function undo() { flushTyping(); if (hist.i > 0) { hist.i--; restore(hist.stack[hist.i]); updUndo(); } }
+function redo() { flushTyping(); if (hist.i < hist.stack.length - 1) { hist.i++; restore(hist.stack[hist.i]); updUndo(); } }
+function updUndo() { $('#btn-undo').disabled = hist.i <= 0; $('#btn-redo').disabled = hist.i >= hist.stack.length - 1; }
+
+function saveLocal() {
+  try { localStorage.setItem(STORE_KEY, JSON.stringify({ title: S.title, text: S.text, pos: S.pos, shape: S.shape, dir: S.dir, nums: S.nums })); } catch (e) { /* storage off - fine */ }
+}
+
+/* ================================================================
+   Text edits made from the picture
+   ================================================================ */
+const standalone = n => (n.kind === 'person' && n.title) ? `${n.label} (${n.title})` : n.label;
+
+function commitText(t) {
+  S.text = t;
+  ta.value = t;
+  pushHistory();
+  refresh();
+}
+
+function appendLines(lines) {
+  let t = S.text.replace(/\s+$/, '');
+  if (t) t += '\n';
+  commitText(t + lines.join('\n'));
+}
+
+// edits: Map(lineIndex -> [replacement lines]); deleted: ids being removed.
+// Keeps boxes that would vanish, and keeps lines that lean on the line above ("go to X", "else ...") pointing at the same box.
+function editLines(edits, deleted = new Set()) {
+  const old = S.text.split('\n'), recs = M.recs;
+  const keys = [...edits.keys()].sort((a, b) => a - b);
+  const mentioned = new Set();
+  for (const k of keys) for (const s of edits.get(k)) for (const id of parse(s, S.shape).nodes.keys()) mentioned.add(id);
+  const emitted = new Set();
+  for (const k of keys) {
+    for (const id of recs[k].nodes) {
+      if (deleted.has(id) || emitted.has(id) || mentioned.has(id)) continue;
+      const n = M.nodes.get(id);
+      if (n && [...n.lines].every(l => edits.has(l))) {
+        edits.get(k).unshift(standalone(n));
+        if (n.kind === 'person') S.shape[id] = 'person';
+        emitted.add(id);
+      }
+    }
+  }
+  const out = [], map = new Map();
+  old.forEach((ln, i) => { if (edits.has(i)) out.push(...edits.get(i)); else { map.set(i, out.length); out.push(ln); } });
+
+  const np = parse(out.join('\n'), S.shape), before = new Map(), replace = new Map();
+  const lbl = id => M.nodes.get(id).label;
+  for (const [oi, ni] of map) {
+    const ob = recs[oi].bind;
+    if (!ob) continue;
+    const nb = np.recs[ni] && np.recs[ni].bind;
+    if (nb && nb.id === ob.id) continue;
+    const r = recs[oi];
+    if (!deleted.has(ob.id) && M.nodes.has(ob.id)) before.set(ni, standalone(M.nodes.get(ob.id)));
+    else if (r.type === 'if' && r.dec != null && M.nodes.has(r.tgt)) replace.set(ni, `${lbl(r.dec)}, if yes, go to ${lbl(r.tgt)}`);
+    else if (r.type === 'loop' && r.loop != null) replace.set(ni, lbl(r.loop) + (r.tgt != null && M.nodes.has(r.tgt) ? `\n${lbl(r.loop)}, go to ${lbl(r.tgt)}` : ''));
+    else if (r.tgt != null && M.nodes.has(r.tgt) && !deleted.has(r.tgt)) replace.set(ni, standalone(M.nodes.get(r.tgt)));
+    else replace.set(ni, null);
+  }
+  const fin = [];
+  out.forEach((ln, i) => {
+    if (before.has(i)) fin.push(before.get(i));
+    if (replace.has(i)) { if (replace.get(i) != null) fin.push(replace.get(i)); }
+    else fin.push(ln);
+  });
+  for (const id of deleted) { for (const d in S.pos) delete S.pos[d][id]; delete S.shape[id]; }
+  commitText(fin.join('\n'));
+}
+
+const laneLine = (name, ids) => `lane ${name}: ${ids.map(x => M.nodes.get(x).label).join(', ')}`;
+
+function deleteNode(id) {
+  const n = M.nodes.get(id);
+  if (!n) return;
+  const edits = new Map([...n.lines].map(l => [l, []]));
+  // a lane line only loses this box, the other boxes stay in the lane
+  for (const sp of n.spans) {
+    if (!sp.lane || edits.has(sp.line)) continue;
+    const ld = M.laneLines.get(sp.line), rest = ld.ids.filter(x => x !== id);
+    edits.set(sp.line, rest.length ? [laneLine(ld.name, rest)] : []);
+  }
+  editLines(edits, new Set([id]));
+}
+
+// put a box in a lane (empty name = take it out of its lane)
+function setLane(id, name) {
+  const n = M.nodes.get(id);
+  if (!n) return;
+  name = (name || '').trim();
+  const lines = S.text.split('\n');
+  let placed = false;
+  for (const [li, ld] of M.laneLines) {
+    const here = name && norm(ld.name) === norm(name);
+    const ids = ld.ids.filter(x => x !== id);
+    if (here && !placed) { ids.push(id); placed = true; }
+    if (ids.length === ld.ids.length && ids.every((x, k) => x === ld.ids[k])) continue;
+    lines[li] = ids.length ? laneLine(ld.name, ids) : null;
+  }
+  if (name && !placed) lines.push(`lane ${name}: ${n.label}`);
+  commitText(lines.filter(l => l !== null).join('\n'));
+}
+
+function addNote(id, text) {
+  const n = M.nodes.get(id);
+  text = (text || '').trim();
+  if (n && text) appendLines([`note ${n.label}: ${text}`]);
+}
+
+function deleteEdge(eid) {
+  const e = M.edges.find(x => x.id === eid);
+  if (!e) return;
+  const r = M.recs[e.line], lbl = id => M.nodes.get(id).label;
+  let rep = [];
+  if (e.kind === 'ifctx') rep = [`${lbl(r.dec)}, if yes, go to ${lbl(r.tgt)}`];
+  else if (e.kind === 'ifyes') rep = r.src != null ? [`${lbl(r.src)}, go to ${lbl(r.dec)}`] : [lbl(r.dec)];
+  editLines(new Map([[e.line, rep]]));
+}
+
+function deleteSelection() {
+  if (!sel) return;
+  const s = sel;
+  sel = null;
+  if (s.type === 'node') deleteNode(s.id); else deleteEdge(s.id);
+}
+
+function moveKeys(oldId, newId) {
+  if (oldId === newId) return;
+  for (const d in S.pos) if (S.pos[d][oldId]) { S.pos[d][newId] = S.pos[d][oldId]; delete S.pos[d][oldId]; }
+  if (S.shape[oldId]) { S.shape[newId] = S.shape[oldId]; delete S.shape[oldId]; }
+}
+
+function renameNode(id, value) {
+  const n = M.nodes.get(id);
+  value = (value || '').trim();
+  if (!n || !value) return;
+  let name = value, title = null;
+  if (n.kind === 'person') {
+    const pm = RX.person.exec(value);
+    if (pm && pm[1].trim()) { name = pm[1].trim(); title = pm[2].trim(); } else title = '';
+  }
+  // a loop keeps its "For each" - only the item changes ("next mailbox" follows too)
+  let item = null;
+  if (n.kind === 'loop' || LOOP_RX.test(n.label)) {
+    item = name.replace(/^for\s*each\s+/i, '').trim();
+    if (!item) return;
+    name = 'For each ' + item;
+  }
+  const lines = S.text.split('\n'), base = name.replace(/\s*\?+$/, '');
+  if (!base) return;
+  const isQ = item == null && n.spans.some(sp => sp.cond || lines[sp.line].slice(sp.s, sp.e).endsWith('?'));
+  const edits = n.spans.map(sp => ({ line: sp.line, s: sp.s, e: sp.e, cond: sp.cond, str: sp.item ? item : sp.cond ? base : (isQ ? base + '?' : name) }));
+  if (title !== null && title !== n.title) {
+    if (n.titleSpan) edits.push({ line: n.titleSpan.line, s: n.titleSpan.s, e: n.titleSpan.e, str: title ? ` (${title})` : '' });
+    else if (title) { const first = edits.find(x => !x.cond); if (first) first.str += ` (${title})`; }
+  }
+  const byLine = new Map();
+  for (const ed of edits) { if (!byLine.has(ed.line)) byLine.set(ed.line, []); byLine.get(ed.line).push(ed); }
+  for (const [ln, list] of byLine) {
+    let t = lines[ln];
+    list.sort((a, b) => b.s - a.s).forEach(ed => { t = t.slice(0, ed.s) + ed.str + t.slice(ed.e); });
+    lines[ln] = t;
+  }
+  const newId = isQ ? norm(base) + '?' : norm(name);
+  moveKeys(id, newId);
+  if (sel && sel.id === id) sel = { type: 'node', id: newId };
+  commitText(lines.join('\n'));
+}
+
+function setShape(id, kind) {
+  if (kind) S.shape[id] = kind; else delete S.shape[id];
+  pushHistory();
+  refresh();
+}
+
+function connect(a, b, at) {
+  const A = M.nodes.get(a), B = M.nodes.get(b);
+  if (!A || !B) return;
+  autoFit = false;
+  keepInView = true;
+  if (A.kind === 'person' || B.kind === 'person') appendLines([`${B.label} reports to ${A.label}`]);
+  else if (A.kind === 'decision') chooseLabel(at, lab => appendLines([`${A.label}, if ${lab}, go to ${B.label}`]));
+  else appendLines([`${A.label}, go to ${B.label}`]);
+}
+
+function addNode(kind, value, w, from) {
+  let name = (value || '').trim();
+  if (!name) return;
+  let id;
+  if (kind === 'decision') {
+    const base = name.replace(/\s*\?+$/, '');
+    if (!base) return;
+    name = cap(base) + '?'; id = norm(base) + '?';
+  } else if (kind === 'person') {
+    const pm = RX.person.exec(name);
+    id = norm(pm && pm[1].trim() ? pm[1] : name);
+  } else if (kind === 'loop') {
+    const it = name.replace(/^for\s*each\s+/i, '').trim();
+    if (!it) return;
+    name = 'For each ' + it; id = norm(name);
+  } else id = norm(name);
+  autoFit = false;
+  keepInView = true;
+  // stays where it was dropped until it gets linked - then auto layout places it
+  if (!M.nodes.has(id)) mpos()[id] = { x: w.x, y: w.y, drop: true };
+  if (kind === 'io' || kind === 'database' || kind === 'terminal' || kind === 'person') S.shape[id] = kind;
+  const A = from != null ? M.nodes.get(from) : null;
+  if (!A) return appendLines([name]);
+  const label = RX.person.exec(name) && kind === 'person' ? RX.person.exec(name)[1].trim() : name;
+  if (A.kind === 'person' || kind === 'person') appendLines([`${name} reports to ${A.label}`]);
+  else if (A.kind === 'decision') chooseLabel(toClient(w.x, w.y), lab => appendLines([`${A.label}, if ${lab}, go to ${label}`]));
+  else appendLines([`${A.label}, go to ${label}`]);
+}
+
+const PLACEHOLDER = { step: 'Step name', decision: 'Question, e.g. User found?', loop: 'Loop over, e.g. server', io: 'e.g. Read CSV file', database: 'e.g. Read DB', terminal: 'Start or End', person: 'Name (Job title)' };
+function promptNew(kind, w, from) {
+  const val = kind === 'terminal' ? (M.nodes.size ? 'End' : 'Start') : '';
+  openEditor({ wx: w.x, wy: w.y, value: val, placeholder: PLACEHOLDER[kind], width: 180, onCommit: v => addNode(kind, v, w, from) });
+}
+
+function startRename(id) {
+  const n = M.nodes.get(id), p = lastP[id];
+  if (!n || !p) return;
+  openEditor({ wx: p.x, wy: p.y, value: n.kind === 'person' && n.title ? `${n.label} (${n.title})` : n.label, width: Math.max(n.w, 170), onCommit: v => renameNode(id, v) });
+}
+
+/* ================================================================
+   Small UI pieces: inline editor, menus, toast
+   ================================================================ */
+const inl = $('#inline-ed');
+let edState = null;
+function openEditor({ wx, wy, value = '', placeholder = '', width = 180, onCommit }) {
+  closeEditor(false);
+  const c = toClient(wx, wy), w = clamp(width * view.k, 170, 420);
+  inl.value = value; inl.placeholder = placeholder;
+  inl.style.width = w + 'px';
+  inl.style.left = clamp(c.x - w / 2, 4, window.innerWidth - w - 4) + 'px';
+  inl.style.top = clamp(c.y - 17, 4, window.innerHeight - 40) + 'px';
+  inl.hidden = false;
+  edState = { onCommit };
+  inl.focus(); inl.select();
+}
+function closeEditor(commit) {
+  if (!edState) return;
+  const st = edState;
+  edState = null;
+  inl.hidden = true;
+  if (commit) st.onCommit(inl.value);
+}
+inl.addEventListener('keydown', ev => {
+  if (ev.key === 'Enter') { ev.preventDefault(); closeEditor(true); }
+  else if (ev.key === 'Escape') { ev.preventDefault(); closeEditor(false); }
+});
+inl.addEventListener('blur', () => closeEditor(true));
+
+const ctxEl = $('#ctx');
+function openMenu(x, y, items) {
+  ctxEl.innerHTML = items.map((it, i) => it.header ? `<div class="menu-h">${esc(it.header)}</div>`
+    : it.sep ? '<div class="menu-sep"></div>'
+    : `<button class="menu-item${it.on ? ' on' : ''}" data-i="${i}">${esc(it.label)}${it.hint ? `<span class="hint">${esc(it.hint)}</span>` : ''}</button>`).join('');
+  ctxEl.hidden = false;
+  const r = ctxEl.getBoundingClientRect();
+  ctxEl.style.left = clamp(x, 4, window.innerWidth - r.width - 4) + 'px';
+  ctxEl.style.top = clamp(y, 4, window.innerHeight - r.height - 4) + 'px';
+  ctxEl.onclick = ev => {
+    const b = ev.target.closest('[data-i]');
+    if (!b) return;
+    closeMenus();
+    items[+b.dataset.i].act();
+  };
+}
+function closeMenus() {
+  ctxEl.hidden = true;
+  $$('.dd.open').forEach(d => d.classList.remove('open'));
+}
+function chooseLabel(at, cb) {
+  openMenu(at.x, at.y, [
+    { header: 'Arrow label' },
+    { label: 'Yes', act: () => cb('yes') },
+    { label: 'No', act: () => cb('no') },
+    { label: 'Other…', act: () => {
+      const w = toWorld(at.x, at.y);
+      openEditor({ wx: w.x, wy: w.y, placeholder: 'Label, e.g. Maybe', onCommit: v => { if (v.trim()) cb(v.trim()); } });
+    } },
+  ]);
+}
+let toastT = 0;
+function toast(msg) {
+  const t = $('#toast');
+  t.textContent = msg; t.hidden = false;
+  clearTimeout(toastT);
+  toastT = setTimeout(() => { t.hidden = true; }, 2600);
+}
+
+/* ================================================================
+   Canvas mouse handling
+   ================================================================ */
+let drag = null, lastTap = { t: 0 };
+const nodeAt = ev => { const el = document.elementFromPoint(ev.clientX, ev.clientY); return el && el.closest ? el.closest('#svg .node') : null; };
+
+function select(s) {
+  sel = s;
+  applySel();
+  renderEditorDecor();
+  if (s && s.type === 'node') { const n = M.nodes.get(s.id); if (n && n.lines.size) revealLine(Math.min(...n.lines)); }
+  if (s && s.type === 'edge') { const e = M.edges.find(x => x.id === s.id); if (e) revealLine(e.line); }
+}
+
+function tap(type, id, ev) {
+  const now = performance.now();
+  const dbl = lastTap.type === type && lastTap.id === id && now - lastTap.t < 400 && Math.hypot(ev.clientX - lastTap.x, ev.clientY - lastTap.y) < 8;
+  lastTap = dbl ? { t: 0 } : { type, id, t: now, x: ev.clientX, y: ev.clientY };
+  if (type === 'node') { select({ type: 'node', id }); if (dbl) startRename(id); }
+  else { select(null); if (dbl) promptNew('step', toWorld(ev.clientX, ev.clientY)); }
+}
+
+function drawTemp() {
+  if (!drag || drag.mode !== 'connect') { gTemp.innerHTML = ''; return; }
+  const a = drag.from, b = drag.cur;
+  gTemp.innerHTML = `<path class="temp" d="M${f1(a.x)},${f1(a.y)} L${f1(b.x)},${f1(b.y)}"/>`;
+}
+
+svg.addEventListener('pointerdown', ev => {
+  if (ev.button !== 0) return;
+  closeMenus();
+  const h = ev.target.closest('.handle'), nd = ev.target.closest('.node'), ed = ev.target.closest('.edge');
+  svg.setPointerCapture(ev.pointerId);
+  if (h && nd) {
+    const id = nd.dataset.id, p = lastP[id];
+    drag = { mode: 'connect', id, from: { x: p.x + +h.getAttribute('cx'), y: p.y + +h.getAttribute('cy') }, cur: toWorld(ev.clientX, ev.clientY), sx: ev.clientX, sy: ev.clientY };
+    svg.classList.add('connecting');
+    drawTemp();
+  } else if (nd) {
+    const id = nd.dataset.id, p = lastP[id];
+    drag = { mode: 'move', id, sx: ev.clientX, sy: ev.clientY, ox: p.x, oy: p.y, moved: false };
+  } else if (ed) {
+    drag = { mode: 'edge', id: ed.dataset.eid };
+  } else {
+    drag = { mode: 'pan', sx: ev.clientX, sy: ev.clientY, tx: view.tx, ty: view.ty, moved: false };
+  }
+});
+
+svg.addEventListener('pointermove', ev => {
+  if (!drag) return;
+  if (drag.mode === 'move') {
+    const dx = ev.clientX - drag.sx, dy = ev.clientY - drag.sy;
+    if (!drag.moved && Math.hypot(dx, dy) < 4) return;
+    drag.moved = true;
+    svg.classList.add('dragging');
+    autoFit = false;
+    mpos()[drag.id] = { x: drag.ox + dx / view.k, y: drag.oy + dy / view.k };
+    render();
+  } else if (drag.mode === 'pan') {
+    const dx = ev.clientX - drag.sx, dy = ev.clientY - drag.sy;
+    if (!drag.moved && Math.hypot(dx, dy) < 4) return;
+    drag.moved = true;
+    svg.classList.add('panning');
+    autoFit = false;
+    view.tx = drag.tx + dx; view.ty = drag.ty + dy;
+    applyView();
+  } else if (drag.mode === 'connect') {
+    drag.cur = toWorld(ev.clientX, ev.clientY);
+    const t = nodeAt(ev);
+    for (const g of gNodes.children) g.classList.toggle('drop', g === t && g.dataset.id !== drag.id);
+    drawTemp();
+  }
+});
+
+function endDrag(ev, cancelled) {
+  const d = drag;
+  drag = null;
+  svg.classList.remove('dragging', 'panning', 'connecting');
+  gTemp.innerHTML = '';
+  for (const g of gNodes.children) g.classList.remove('drop');
+  if (!d || cancelled) { if (d && d.mode === 'move' && d.moved) { pushHistory(); saveLocal(); } return; }
+  if (d.mode === 'move') {
+    if (d.moved) { pushHistory(); saveLocal(); }
+    else tap('node', d.id, ev);
+  } else if (d.mode === 'pan') {
+    if (!d.moved) tap('bg', null, ev);
+  } else if (d.mode === 'edge') {
+    select({ type: 'edge', id: d.id });
+  } else if (d.mode === 'connect') {
+    const t = nodeAt(ev);
+    if (t && t.dataset.id !== d.id) connect(d.id, t.dataset.id, { x: ev.clientX, y: ev.clientY });
+    else if (!t && Math.hypot(ev.clientX - d.sx, ev.clientY - d.sy) > 12) {
+      const src = M.nodes.get(d.id);
+      promptNew(src && src.kind === 'person' ? 'person' : 'step', toWorld(ev.clientX, ev.clientY), d.id);
+    }
+  }
+}
+svg.addEventListener('pointerup', ev => endDrag(ev, false));
+svg.addEventListener('pointercancel', ev => endDrag(ev, true));
+
+svg.addEventListener('wheel', ev => {
+  ev.preventDefault();
+  zoomAt(ev.clientX, ev.clientY, Math.exp(-ev.deltaY * (ev.ctrlKey ? 0.01 : 0.0015)));
+}, { passive: false });
+
+svg.addEventListener('contextmenu', ev => {
+  ev.preventDefault();
+  const nd = ev.target.closest('.node'), ed = ev.target.closest('.edge');
+  if (nd) {
+    const id = nd.dataset.id, n = M.nodes.get(id), ov = S.shape[id];
+    select({ type: 'node', id });
+    const p = lastP[id], at = { wx: p.x, wy: p.y + n.h / 2 + 24, width: 220 };
+    openMenu(ev.clientX, ev.clientY, [
+      { label: 'Rename', hint: 'F2', act: () => startRename(id) },
+      { label: 'Add note…', act: () => openEditor({ ...at, placeholder: 'Note text', onCommit: v => addNote(id, v) }) },
+      { label: 'Lane…', hint: n.lane != null && M.lanes.length ? M.lanes[n.lane] : '', act: () => openEditor({ ...at, value: n.lane != null && !n.laneAuto ? M.lanes[n.lane] : '', placeholder: 'Lane name (empty = no lane)', onCommit: v => setLane(id, v) }) },
+      { header: 'Shape' },
+      { label: 'Automatic', on: !ov, act: () => setShape(id, null) },
+      ...KINDS.map(k => ({ label: KIND_NAME[k], on: ov === k, act: () => setShape(id, k) })),
+      { sep: true },
+      { label: 'Delete box', hint: 'Del', act: () => { sel = null; deleteNode(n.id); } },
+    ]);
+  } else if (ed) {
+    const id = ed.dataset.eid;
+    select({ type: 'edge', id });
+    openMenu(ev.clientX, ev.clientY, [{ label: 'Delete arrow', hint: 'Del', act: () => { sel = null; deleteEdge(id); } }]);
+  } else {
+    const w = toWorld(ev.clientX, ev.clientY);
+    openMenu(ev.clientX, ev.clientY, [
+      { header: 'Add here' },
+      ...KINDS.map(k => ({ label: KIND_NAME[k], act: () => promptNew(k, w) })),
+      { sep: true },
+      { label: 'Auto layout', act: autoLayout },
+      { label: 'Fit to screen', act: () => { autoFit = true; fit(); } },
+    ]);
+  }
+});
+
+/* palette: drag a shape onto the canvas (or click it) */
+for (const it of $$('.pal-item')) {
+  it.addEventListener('pointerdown', ev => {
+    if (ev.button !== 0) return;
+    ev.preventDefault();
+    closeMenus();
+    const kind = it.dataset.kind, ghost = it.cloneNode(true);
+    ghost.classList.add('ghost');
+    let moved = false;
+    const move = e => {
+      if (!moved && Math.hypot(e.clientX - ev.clientX, e.clientY - ev.clientY) > 6) { moved = true; document.body.appendChild(ghost); }
+      ghost.style.left = e.clientX + 'px'; ghost.style.top = e.clientY + 'px';
+    };
+    const finish = (e, ok) => {
+      it.removeEventListener('pointermove', move); it.removeEventListener('pointerup', up); it.removeEventListener('pointercancel', cancel);
+      ghost.remove();
+      if (!ok) return;
+      const r = svg.getBoundingClientRect(), pr = $('#palette').getBoundingClientRect();
+      if (!moved) { promptNew(kind, toWorld(r.left + r.width / 2 + 40, r.top + r.height / 2)); return; }
+      const inside = e.clientX > r.left && e.clientX < r.right && e.clientY > r.top && e.clientY < r.bottom;
+      const onPal = e.clientX < pr.right && e.clientY < pr.bottom && e.clientX > pr.left && e.clientY > pr.top;
+      if (inside && !onPal) promptNew(kind, toWorld(e.clientX, e.clientY));
+    };
+    const up = e => finish(e, true), cancel = e => finish(e, false);
+    it.setPointerCapture(ev.pointerId);
+    it.addEventListener('pointermove', move);
+    it.addEventListener('pointerup', up);
+    it.addEventListener('pointercancel', cancel);
+  });
+  it.addEventListener('keydown', ev => {
+    if (ev.key !== 'Enter' && ev.key !== ' ') return;
+    ev.preventDefault();
+    const r = svg.getBoundingClientRect();
+    promptNew(it.dataset.kind, toWorld(r.left + r.width / 2 + 40, r.top + r.height / 2));
+  });
+}
+
+/* ================================================================
+   Text box events
+   ================================================================ */
+ta.addEventListener('input', () => {
+  S.text = ta.value;
+  renderEditorDecor();
+  clearTimeout(tRefresh); tRefresh = setTimeout(refresh, 140);
+  clearTimeout(tHist); tHist = setTimeout(() => { tHist = 0; pushHistory(); }, 650);
+});
+ta.addEventListener('scroll', syncScroll);
+const caretLinked = () => {
+  const line = ta.value.slice(0, ta.selectionStart).split('\n').length - 1, r = M.recs[line];
+  linked = new Set(r ? (r.show || r.nodes) : []);
+  if (r && r.bind) linked.add(r.bind.id);
+  applySel();
+};
+ta.addEventListener('click', caretLinked);
+ta.addEventListener('keyup', caretLinked);
+ta.addEventListener('blur', () => { linked = new Set(); applySel(); });
+$('#problems').addEventListener('click', ev => { const b = ev.target.closest('[data-line]'); if (b) goLine(+b.dataset.line); });
+
+/* ================================================================
+   Files: save / open / export
+   ================================================================ */
+const fileBase = () => (S.title || 'diagram').replace(/[\\/:*?"<>|]+/g, '_').trim() || 'diagram';
+function download(blob, name) {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob); a.download = name;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 3000);
+}
+async function saveAs(blob, name, desc, mime, ext) {
+  if (window.showSaveFilePicker) {
+    try {
+      const h = await window.showSaveFilePicker({ suggestedName: name, types: [{ description: desc, accept: { [mime]: [ext] } }] });
+      const w = await h.createWritable(); await w.write(blob); await w.close();
+      return h;
+    } catch (e) { if (e && e.name === 'AbortError') return null; }
+  }
+  download(blob, name);
+  return 'download';
+}
+
+function docJson() {
+  const pos = {};
+  for (const d in S.pos) { pos[d] = {}; for (const id in S.pos[d]) if (M.nodes.has(id)) pos[d][id] = S.pos[d][id]; }
+  return JSON.stringify({ app: 'TextToFlow', version: 1, title: S.title, dir: S.dir, nums: S.nums, text: S.text, pos, shape: S.shape }, null, 2);
+}
+async function saveFile() {
+  flushTyping();
+  const blob = new Blob([docJson()], { type: 'application/json' });
+  if (fileHandle) {
+    try { const w = await fileHandle.createWritable(); await w.write(blob); await w.close(); toast('Saved ' + fileHandle.name); return; }
+    catch (e) { fileHandle = null; }
+  }
+  const h = await saveAs(blob, fileBase() + '.texttoflow', 'TextToFlow diagram', 'application/json', '.texttoflow');
+  if (h && h !== 'download') { fileHandle = h; toast('Saved ' + h.name); }
+  else if (h) toast('Saved to Downloads: ' + fileBase() + '.texttoflow');
+}
+
+function loadDoc(d) {
+  S.title = d.title || 'My diagram';
+  S.text = String(d.text || '').replace(/\r\n?/g, '\n');
+  S.dir = d.dir === 'LR' ? 'LR' : 'TB';
+  S.pos = { TB: {}, LR: {} };
+  if (d.pos && typeof d.pos === 'object') for (const k of ['TB', 'LR']) if (d.pos[k] && typeof d.pos[k] === 'object') S.pos[k] = { ...d.pos[k] };
+  S.shape = (d.shape && typeof d.shape === 'object') ? { ...d.shape } : {};
+  S.nums = !!d.nums;
+  $('#title').value = S.title;
+  document.title = S.title + ' - TextToFlow';
+  ta.value = S.text;
+  sel = null; autoFit = true;
+  updDirBtn(); updNumsBtn();
+  pushHistory();
+  refresh();
+}
+async function readFile(file, handle) {
+  const txt = await file.text();
+  let doc = null;
+  try { doc = JSON.parse(txt); } catch (e) { doc = null; }
+  // old files were saved under the app's old name - still open them
+  if (doc && (doc.app === 'TextToFlow' || doc.app === 'SuhailFlow') && typeof doc.text === 'string') { loadDoc(doc); fileHandle = handle || null; toast('Opened ' + file.name); }
+  else if (!doc) { loadDoc({ title: file.name.replace(/\.[^.]+$/, ''), text: txt }); fileHandle = null; toast('Opened ' + file.name + ' as text'); }
+  else toast('That file is not a TextToFlow file');
+}
+async function openFile() {
+  if (window.showOpenFilePicker) {
+    try {
+      const [h] = await window.showOpenFilePicker({ types: [{ description: 'TextToFlow diagram or text', accept: { 'application/json': ['.texttoflow', '.suhailflow', '.json'], 'text/plain': ['.txt'] } }] });
+      await readFile(await h.getFile(), h);
+      return;
+    } catch (e) { if (e && e.name === 'AbortError') return; }
+  }
+  $('#file-in').click();
+}
+$('#file-in').addEventListener('change', async ev => {
+  const f = ev.target.files[0];
+  ev.target.value = '';
+  if (f) await readFile(f, null);
+});
+
+function buildExportSvg() {
+  const P = positions(), R = routeAll(P), b = bbox(P, R);
+  if (!b) return null;
+  const pad = 30, W = Math.ceil(b.w + pad * 2), H = Math.ceil(b.h + pad * 2), x0 = b.x - pad, y0 = b.y - pad;
+  let s = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="${f1(x0)} ${f1(y0)} ${W} ${H}">`;
+  const mk = (id, c) => `<marker id="${id}" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="10" markerHeight="10" markerUnits="userSpaceOnUse" orient="auto"><path d="M0,1 L10,5 L0,9 z" fill="${c}"/></marker>`;
+  s += `<defs>${mk('xarw', LIGHT.edge)}${mk('xarw-yes', LIGHT.yes)}${mk('xarw-no', LIGHT.no)}</defs>`;
+  s += `<rect x="${f1(x0)}" y="${f1(y0)}" width="${W}" height="${H}" fill="#ffffff"/>`;
+  s += laneSvg(laneRects(P), LIGHT);
+  let ls = '';
+  for (const e of M.edges) { const pts = R.get(e.id); if (!pts || pts.length < 2) continue; s += edgeSvg(e, pts, LIGHT, false); ls += labelSvg(e, pts, LIGHT); }
+  for (const n of M.nodes.values()) s += nodeSvg(n, P[n.id], LIGHT, false);
+  return { svg: s + ls + '</svg>', W, H };
+}
+
+function exportSvg() {
+  const x = buildExportSvg();
+  if (!x) return toast('Nothing to export yet');
+  saveAs(new Blob([x.svg], { type: 'image/svg+xml' }), fileBase() + '.svg', 'SVG image', 'image/svg+xml', '.svg').then(h => h && toast('SVG exported'));
+}
+
+// the export SVG drawn onto a canvas -> PNG (2x sharp)
+function pngBlob(x) {
+  return new Promise((resolve, reject) => {
+    const scale = Math.min(2, 8000 / Math.max(x.W, x.H)), img = new Image();
+    img.onload = () => {
+      const c = document.createElement('canvas');
+      c.width = Math.round(x.W * scale); c.height = Math.round(x.H * scale);
+      const g = c.getContext('2d');
+      g.scale(scale, scale);
+      g.drawImage(img, 0, 0, x.W, x.H);
+      c.toBlob(b => b ? resolve(b) : reject(new Error('no png')), 'image/png');
+    };
+    img.onerror = () => reject(new Error('no png'));
+    img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(x.svg);
+  });
+}
+
+function exportPng() {
+  const x = buildExportSvg();
+  if (!x) return toast('Nothing to export yet');
+  pngBlob(x)
+    .then(b => saveAs(b, fileBase() + '.png', 'PNG image', 'image/png', '.png').then(h => h && toast('PNG exported')))
+    .catch(() => toast('PNG export failed'));
+}
+
+// picture straight to the clipboard - paste into Outlook, Teams, Word
+async function copyPicture() {
+  flushTyping();
+  const x = buildExportSvg();
+  if (!x) return toast('Nothing to copy yet');
+  try {
+    if (!navigator.clipboard || !window.ClipboardItem) throw new Error('no clipboard');
+    await navigator.clipboard.write([new window.ClipboardItem({ 'image/png': pngBlob(x) })]);
+    toast('Picture copied - paste with Ctrl+V');
+  } catch (e) {
+    toast('Copy is blocked here - use Export > PNG');
+  }
+}
+
+function buildDrawioXml() {
+  const P = positions(), R = routeAll(P), b = bbox(P, R);
+  if (!b) return null;
+  const ox = 40 - b.x, oy = 40 - b.y, r = v => Math.round(v);
+  const STY = {
+    step: 'rounded=1;whiteSpace=wrap;html=1;arcSize=14;',
+    terminal: 'rounded=1;whiteSpace=wrap;html=1;arcSize=50;',
+    decision: 'rhombus;whiteSpace=wrap;html=1;',
+    io: `shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;size=${SKEW};`,
+    database: `shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=${DB_RY};`,
+    loop: `shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;fixedSize=1;size=${HEX};strokeWidth=2;`,
+    person: 'rounded=1;whiteSpace=wrap;html=1;arcSize=10;',
+  };
+  let cells = '<mxCell id="0"/><mxCell id="1" parent="0"/>', k = 2;
+  const cid = new Map(), TB = S.dir === 'TB';
+  // swimlanes first so they sit behind the boxes
+  for (const ln of laneRects(P)) {
+    const style = `swimlane;horizontal=${TB ? 1 : 0};startSize=${LANE_HEAD};html=1;fillColor=${LIGHT.laneHead};fontColor=${LIGHT.laneHeadText};swimlaneFillColor=${ln.i % 2 ? LIGHT.laneB : LIGHT.laneA};strokeColor=${LIGHT.laneLine};fontStyle=1;`;
+    cells += `<mxCell id="l${k++}" value="${esc(esc(ln.name))}" style="${esc(style)}" vertex="1" parent="1"><mxGeometry x="${r(ln.x + ox)}" y="${r(ln.y + oy)}" width="${r(ln.w)}" height="${r(ln.h)}" as="geometry"/></mxCell>`;
+  }
+  for (const n of M.nodes.values()) {
+    const id = 'n' + (k++), p = P[n.id];
+    cid.set(n.id, id);
+    const nc = nodeColors(n, LIGHT);
+    const style = STY[n.kind] + `fillColor=${nc.f};strokeColor=${n.kind === 'person' ? LIGHT.band : nc.s};fontColor=${nc.t};fontSize=13;`;
+    const value = n.kind === 'person'
+      ? `<b>${esc(n.label)}</b>` + (n.title ? `<br><font style="font-size:11px" color="${LIGHT.sub}">${esc(n.title)}</font>` : '')
+      : (S.nums && n.num ? `${n.num}. ` : '') + esc(n.label);
+    cells += `<mxCell id="${id}" value="${esc(value)}" style="${esc(style)}" vertex="1" parent="1"><mxGeometry x="${r(p.x - n.w / 2 + ox)}" y="${r(p.y - n.h / 2 + oy)}" width="${r(n.w)}" height="${r(n.h)}" as="geometry"/></mxCell>`;
+    if (n.ntxt) {
+      const nx = TB ? p.x + n.w / 2 + NOTE_GAP : p.x - n.nw / 2, ny = TB ? p.y - n.nh / 2 : p.y + n.h / 2 + NOTE_GAP;
+      const nstyle = `shape=note;whiteSpace=wrap;html=1;size=9;align=left;spacingLeft=6;fontSize=11;fillColor=${LIGHT.noteF};strokeColor=${LIGHT.noteS};fontColor=${LIGHT.noteText};`;
+      cells += `<mxCell id="t${id}" value="${esc(n.notes.map(esc).join('<br>'))}" style="${esc(nstyle)}" vertex="1" parent="1"><mxGeometry x="${r(nx + ox)}" y="${r(ny + oy)}" width="${r(n.nw)}" height="${r(n.nh)}" as="geometry"/></mxCell>`;
+      cells += `<mxCell id="j${id}" style="${esc(`endArrow=none;dashed=1;html=1;strokeColor=${LIGHT.noteS};`)}" edge="1" parent="1" source="${id}" target="t${id}"><mxGeometry relative="1" as="geometry"/></mxCell>`;
+    }
+  }
+  // arrows leave / enter the boxes at the same spots as on screen
+  const rel = (v, c, size) => Math.round(clamp((v - (c - size / 2)) / size, 0, 1) * 1000) / 1000;
+  for (const e of M.edges) {
+    const pts = R.get(e.id), a = P[e.from], z = P[e.to];
+    let con = '';
+    if (pts && pts.length > 1) {
+      const s0 = pts[0], s1 = pts[pts.length - 1];
+      con = `exitX=${rel(s0.x, a.x, a.w)};exitY=${rel(s0.y, a.y, a.h)};exitDx=0;exitDy=0;entryX=${rel(s1.x, z.x, z.w)};entryY=${rel(s1.y, z.y, z.h)};entryDx=0;entryDy=0;`;
+    }
+    const t = tone(e);
+    const look = t ? `strokeColor=${LIGHT[t]};fontColor=${LIGHT[t + 'Text']};labelBackgroundColor=${LIGHT[t + 'Bg']};labelBorderColor=${LIGHT[t]};strokeWidth=1.5;`
+      : `strokeColor=${LIGHT.edge};fontColor=${LIGHT.edgeText};labelBackgroundColor=#ffffff;`;
+    const style = `edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;${look}${con}`;
+    cells += `<mxCell id="e${k++}" value="${esc(esc(e.label))}" style="${esc(style)}" edge="1" parent="1" source="${cid.get(e.from)}" target="${cid.get(e.to)}"><mxGeometry relative="1" as="geometry"/></mxCell>`;
+  }
+  return `<mxfile host="TextToFlow"><diagram id="texttoflow" name="${esc(S.title)}"><mxGraphModel dx="1200" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" math="0" shadow="0"><root>${cells}</root></mxGraphModel></diagram></mxfile>`;
+}
+
+function exportDrawio() {
+  const xml = buildDrawioXml();
+  if (!xml) return toast('Nothing to export yet');
+  saveAs(new Blob([xml], { type: 'application/xml' }), fileBase() + '.drawio', 'draw.io diagram', 'application/xml', '.drawio').then(h => h && toast('draw.io file exported'));
+}
+
+/* ================================================================
+   Toolbar
+   ================================================================ */
+const EXAMPLES = {
+  flow1: { title: 'Password reset', text: [
+    '# Flowchart - service desk password reset',
+    'Start, go to Get call from user',
+    'Get call from user, go to Verify identity',
+    'Verify identity, if identity verified, go to Reset password',
+    'else go to Request rejected',
+    'Reset password, go to Send temporary password',
+    'Send temporary password, go to Ticket resolved',
+    'Request rejected, go to Close ticket',
+    'Ticket resolved, go to End',
+    'Close ticket, go to End',
+  ].join('\n') },
+  flow2: { title: 'System access request', text: [
+    '# Flowchart - access request with two approvals',
+    'Start, go to Get access request',
+    'Get access request, go to Manager review',
+    'Manager review, if manager approves, go to Security review',
+    'else go to Request rejected',
+    'Security review, if role allows access, go to Grant access',
+    'else go to Request rejected',
+    'Grant access, go to Save in access DB',
+    'Save in access DB, go to Send confirmation email',
+    'Send confirmation email, go to End',
+    'Request rejected, go to Send rejection email',
+    'Send rejection email, go to End',
+  ].join('\n') },
+  flow3: { title: 'Production change', text: [
+    '# Flowchart - production change with rollback',
+    'Start, go to Raise change request',
+    'Raise change request, go to CAB review',
+    'CAB review, if CAB approves, go to Deploy in change window',
+    'else go to Update the plan',
+    'Update the plan, go to CAB review',
+    'Deploy in change window, go to Run smoke test',
+    'Run smoke test, if app works, go to Change completed',
+    'else go to Roll back',
+    'Roll back, go to Change failed',
+    'Change completed, go to End',
+    'Change failed, go to End',
+  ].join('\n') },
+  org1: { title: 'IT Service Desk team', text: [
+    '# Org chart - one line per person',
+    'Aisha (Service Desk Manager) reports to Daniel (Head of IT Operations)',
+    'Ravi (L1 Team Lead) reports to Aisha',
+    'Mei (L2 Team Lead) reports to Aisha',
+    'Farid (Support Analyst) reports to Ravi',
+    'Grace (Support Analyst) reports to Ravi',
+    'Hassan (Desktop Engineer) reports to Mei',
+    'Joanne (Desktop Engineer) reports to Mei',
+  ].join('\n') },
+  org2: { title: 'Infrastructure team', text: [
+    '# Org chart - one line per person',
+    'Priya (Head of Infrastructure) reports to Mark (CIO)',
+    'Kumar (Windows Lead) reports to Priya',
+    'Elena (Network Lead) reports to Priya',
+    'Omar (Database Lead) reports to Priya',
+    'Wei (Windows Engineer) reports to Kumar',
+    'Siti (Network Engineer) reports to Elena',
+    'Lucas (DBA) reports to Omar',
+  ].join('\n') },
+  org3: { title: 'Cyber Security team', text: [
+    '# Org chart - one line per person',
+    'Nadia (CISO) reports to Robert (Chief Risk Officer)',
+    'James (SOC Manager) reports to Nadia',
+    'Fatimah (IAM Manager) reports to Nadia',
+    'Ken (Security Analyst) reports to James',
+    'Anna (Security Analyst) reports to James',
+    'Zul (Access Admin) reports to Fatimah',
+  ].join('\n') },
+  loop1: { title: 'User access review', text: [
+    '# Quarterly user access review - loop, notes, lanes',
+    'Start, go to Get user list from HR DB',
+    'note Get user list from HR DB: everyone with access to the payments system',
+    'for each user, go to Send to line manager',
+    'Send to line manager, if access still needed, go to Keep access',
+    'else go to Remove access',
+    'Keep access, go to next user',
+    'Remove access, if access removed, go to next user',
+    'else go to Raise incident',
+    'Raise incident, go to next user',
+    'when done, go to Save review report',
+    'Save review report, go to End',
+    'lane IT Security: Get user list from HR DB, Remove access, Raise incident, Save review report',
+    'lane Line manager: Send to line manager, Keep access',
+  ].join('\n') },
+  loop2: { title: 'SSL certificate check', text: [
+    '# SSL certificate check - loop, notes, lanes',
+    'Start, go to Read certificate list',
+    'note Read certificate list: from the certificate inventory',
+    'for each certificate, go to Check expiry date',
+    'Check expiry date, if expires in 30 days, go to Raise renewal request',
+    'else go to next certificate',
+    'Raise renewal request, go to Install new certificate',
+    'Install new certificate, if website works, go to next certificate',
+    'else go to Log failure',
+    'Log failure, go to next certificate',
+    'when done, go to Send summary email',
+    'Send summary email, go to End',
+    'lane Script: Read certificate list, Check expiry date, Send summary email',
+    'lane Web team: Raise renewal request, Install new certificate, Log failure',
+  ].join('\n') },
+  loop3: { title: 'Daily backup check', text: [
+    '# Daily backup check - loop, notes, lanes',
+    'Start, go to Get backup jobs from SQL',
+    "note Get backup jobs from SQL: last night's jobs only",
+    'for each job, go to Check job status',
+    'Check job status, if job worked, go to next job',
+    'else go to Rerun job',
+    'Rerun job, if rerun worked, go to next job',
+    'else go to Raise P3 incident',
+    'Raise P3 incident, go to next job',
+    'when done, go to Send daily report',
+    'Send daily report, go to End',
+    'lane Backup team: Get backup jobs from SQL, Check job status, Rerun job, Send daily report',
+    'lane Service desk: Raise P3 incident',
+  ].join('\n') },
+};
+
+function updDirBtn() { $('#btn-dir').innerHTML = S.dir === 'TB' ? '&#8595; Top-down' : '&#8594; Left-right'; }
+function updNumsBtn() { const b = $('#btn-nums'); b.classList.toggle('on', S.nums); b.setAttribute('aria-pressed', String(S.nums)); }
+function autoLayout() { S.pos[S.dir] = {}; autoFit = true; pushHistory(); refresh(); }
+
+for (const dd of $$('.dd')) {
+  dd.querySelector('[data-dd]').addEventListener('click', ev => {
+    ev.stopPropagation();
+    const open = !dd.classList.contains('open');
+    closeMenus();
+    dd.classList.toggle('open', open);
+  });
+}
+document.addEventListener('pointerdown', ev => {
+  if (!ev.target.closest('.dd') && !ev.target.closest('#ctx')) closeMenus();
+});
+for (const b of $$('[data-example]')) b.addEventListener('click', () => {
+  closeMenus();
+  const ex = EXAMPLES[b.dataset.example];
+  fileHandle = null;
+  loadDoc({ title: ex.title, text: ex.text, dir: S.dir });
+});
+for (const b of $$('[data-export]')) b.addEventListener('click', () => {
+  closeMenus();
+  flushTyping();
+  ({ png: exportPng, svg: exportSvg, drawio: exportDrawio })[b.dataset.export]();
+});
+$('#btn-new').addEventListener('click', () => { fileHandle = null; loadDoc({ title: 'My diagram', text: '', dir: S.dir }); ta.focus(); toast('New diagram (Undo brings the old one back)'); });
+$('#btn-open').addEventListener('click', openFile);
+$('#btn-save').addEventListener('click', saveFile);
+$('#btn-undo').addEventListener('click', undo);
+$('#btn-redo').addEventListener('click', redo);
+$('#btn-dir').addEventListener('click', () => { flushTyping(); S.dir = S.dir === 'TB' ? 'LR' : 'TB'; updDirBtn(); autoFit = true; pushHistory(); refresh(); });
+$('#btn-layout').addEventListener('click', () => { flushTyping(); autoLayout(); });
+$('#btn-nums').addEventListener('click', () => { flushTyping(); S.nums = !S.nums; updNumsBtn(); pushHistory(); render(); saveLocal(); });
+$('#btn-copy').addEventListener('click', copyPicture);
+$('#z-in').addEventListener('click', () => { const r = svg.getBoundingClientRect(); zoomAt(r.left + r.width / 2, r.top + r.height / 2, 1.2); });
+$('#z-out').addEventListener('click', () => { const r = svg.getBoundingClientRect(); zoomAt(r.left + r.width / 2, r.top + r.height / 2, 1 / 1.2); });
+$('#z-fit').addEventListener('click', () => { autoFit = true; fit(); });
+$('#title').addEventListener('input', ev => { S.title = ev.target.value; document.title = (S.title || 'Diagram') + ' - TextToFlow'; saveLocal(); });
+
+const help = $('#help');
+const openHelp = () => { help.hidden = false; $('#help-close').focus(); };
+const closeHelp = () => { help.hidden = true; };
+$('#btn-help').addEventListener('click', openHelp);
+$('#btn-syntax').addEventListener('click', openHelp);
+$('#help-close').addEventListener('click', closeHelp);
+help.addEventListener('click', ev => { if (ev.target === help) closeHelp(); });
+
+const THEMES = ['auto', 'light', 'dark'];
+function applyTheme(t) {
+  if (t === 'auto') delete document.documentElement.dataset.theme; else document.documentElement.dataset.theme = t;
+  $('#btn-theme').title = 'Theme: ' + t;
+}
+let theme = 'auto';
+try { theme = localStorage.getItem(THEME_KEY) || 'auto'; } catch (e) { /* ignore */ }
+if (!THEMES.includes(theme)) theme = 'auto';
+applyTheme(theme);
+$('#btn-theme').addEventListener('click', () => {
+  theme = THEMES[(THEMES.indexOf(theme) + 1) % THEMES.length];
+  applyTheme(theme);
+  try { localStorage.setItem(THEME_KEY, theme); } catch (e) { /* ignore */ }
+  toast('Theme: ' + theme);
+});
+
+/* editor width */
+const resizer = $('#resizer'), mainEl = $('#main');
+try { const w = localStorage.getItem(WIDTH_KEY); if (w) mainEl.style.setProperty('--ed-w', w); } catch (e) { /* ignore */ }
+resizer.addEventListener('pointerdown', ev => {
+  ev.preventDefault();
+  resizer.setPointerCapture(ev.pointerId);
+  resizer.classList.add('active');
+  const move = e => mainEl.style.setProperty('--ed-w', clamp(e.clientX - mainEl.getBoundingClientRect().left, 240, window.innerWidth * 0.65) + 'px');
+  const up = () => {
+    resizer.classList.remove('active');
+    resizer.removeEventListener('pointermove', move); resizer.removeEventListener('pointerup', up);
+    try { localStorage.setItem(WIDTH_KEY, mainEl.style.getPropertyValue('--ed-w')); } catch (e) { /* ignore */ }
+  };
+  resizer.addEventListener('pointermove', move);
+  resizer.addEventListener('pointerup', up);
+});
+
+/* keyboard */
+document.addEventListener('keydown', ev => {
+  const inTa = ev.target === ta, inInput = ev.target.tagName === 'INPUT';
+  const mod = ev.ctrlKey || ev.metaKey, k = ev.key.toLowerCase();
+  if (mod && !ev.altKey) {
+    if (k === 'z' && !inInput) { ev.preventDefault(); if (ev.shiftKey) redo(); else undo(); return; }
+    if (k === 'y' && !inInput) { ev.preventDefault(); redo(); return; }
+    if (k === 's') { ev.preventDefault(); saveFile(); return; }
+    if (k === 'o') { ev.preventDefault(); openFile(); return; }
+  }
+  if (ev.key === 'Escape') {
+    if (!help.hidden) { closeHelp(); return; }
+    closeMenus();
+    if (drag && drag.mode === 'connect') { drag = null; gTemp.innerHTML = ''; svg.classList.remove('connecting'); }
+    if (!inTa && !inInput) select(null);
+    return;
+  }
+  if (inTa || inInput || !help.hidden) return;
+  if ((ev.key === 'Delete' || ev.key === 'Backspace') && sel) { ev.preventDefault(); deleteSelection(); }
+  else if (ev.key === 'F2' && sel && sel.type === 'node') { ev.preventDefault(); startRename(sel.id); }
+});
+
+new ResizeObserver(() => { if (autoFit) fit(); else applyView(); }).observe(wrapEl);
+
+/* ================================================================
+   Start
+   ================================================================ */
+let saved = null;
+try { saved = JSON.parse(localStorage.getItem(STORE_KEY) || localStorage.getItem(OLD_STORE_KEY) || 'null'); } catch (e) { saved = null; }
+if (saved && typeof saved.text === 'string') loadDoc(saved);
+else loadDoc({ ...EXAMPLES.flow1, dir: 'TB' });
+
+// small hook so the page can be checked by a test script
+window.__texttoflow = { parse, layoutGraph, get M() { return M; }, get L() { return L; }, get P() { return lastP; }, get R() { return lastR; }, S, refresh, render, deleteNode, deleteEdge, renameNode, connect, addNode, setShape, setLane, addNote, copyPicture, editLines, undo, redo, buildExportSvg, buildDrawioXml, loadDoc, fit, get sel() { return sel; }, select, get view() { return view; } };
+})();
+</script>
+</body>
+</html>
