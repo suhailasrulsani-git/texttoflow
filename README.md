@@ -54,6 +54,19 @@ note Send report: goes to the IT Ops mailbox
 lane Service desk: Check disk space, Clean temp files
 ```
 
+## Checklists (to-do list step)
+
+```
+Start, go to Set up laptop
+todo Set up laptop: Install apps, [x] Encrypt disk, Set up MFA
+Set up laptop, go to End
+```
+
+- One box with a tick box per item, plus a count like 1/3
+- `[x]` = done. Click a tick box on the diagram to tick it - the text updates too
+- Every item ticked = the box turns green
+- Right-click a checklist > Add item, or drag "Checklist" from the bar
+
 ## Shapes are picked for you
 
 | Shape | When |
@@ -62,6 +75,7 @@ lane Service desk: Check disk space, Clean temp files
 | Diamond | `if ...`, or a name ending in `?` |
 | Cylinder (database) | name has DB, Database or SQL |
 | Hexagon (loop) | `for each ...` |
+| Checklist | `todo Name: item, item` |
 | Slanted | name starts with Read, Get, Send, Save, Print or Export |
 | Rectangle | everything else |
 
@@ -79,7 +93,7 @@ lane Service desk: Check disk space, Clean temp files
 - Copy picture - paste straight into Outlook, Teams or Word
 - Step numbers (1 2 3 button)
 - Light / dark theme
-- 9 examples in the Examples menu
+- 10 examples in the Examples menu
 - Remembers your last diagram in the browser
 - Built-in help (the `?` button)
 

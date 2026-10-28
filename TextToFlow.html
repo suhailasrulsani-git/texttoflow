@@ -23,6 +23,7 @@
   --c-okF:#EAF8E1; --c-okS:#2E9B00; --c-okTermF:#2E9B00; --c-okTermT:#FFFFFF; --c-loopF:#FFFFFF; --c-loopS:#0473EA;
   --c-noteF:#FFF8D6; --c-noteS:#E5C55C; --c-noteText:#5A4500; --c-num:#0473EA; --c-numText:#FFFFFF;
   --c-laneA:#EDF2F8; --c-laneB:#F7F9FC; --c-laneLine:#D3DCE8; --c-laneHead:#13294B; --c-laneHeadText:#FFFFFF;
+  --c-checklistF:#FFFFFF; --c-checklistS:#0473EA; --c-checklistH:#E8F1FD;
   color-scheme:light;
 }
 @media (prefers-color-scheme: dark){
@@ -40,6 +41,7 @@
   --c-okF:#163A12; --c-okS:#5BD62A; --c-okTermF:#2E9B00; --c-okTermT:#FFFFFF; --c-loopF:#101D33; --c-loopS:#4C9BFF;
   --c-noteF:#3A3214; --c-noteS:#BFA040; --c-noteText:#F1E3A6; --c-num:#4C9BFF; --c-numText:#0B1F3A;
   --c-laneA:#0F1C31; --c-laneB:#12223B; --c-laneLine:#22324F; --c-laneHead:#0473EA; --c-laneHeadText:#FFFFFF;
+  --c-checklistF:#101D33; --c-checklistS:#4C9BFF; --c-checklistH:#12305A;
     color-scheme:dark;
   }
 }
@@ -57,6 +59,7 @@
   --c-okF:#163A12; --c-okS:#5BD62A; --c-okTermF:#2E9B00; --c-okTermT:#FFFFFF; --c-loopF:#101D33; --c-loopS:#4C9BFF;
   --c-noteF:#3A3214; --c-noteS:#BFA040; --c-noteText:#F1E3A6; --c-num:#4C9BFF; --c-numText:#0B1F3A;
   --c-laneA:#0F1C31; --c-laneB:#12223B; --c-laneLine:#22324F; --c-laneHead:#0473EA; --c-laneHeadText:#FFFFFF;
+  --c-checklistF:#101D33; --c-checklistS:#4C9BFF; --c-checklistH:#12305A;
   color-scheme:dark;
 }
 *{box-sizing:border-box}
@@ -169,6 +172,11 @@ main{flex:1;display:flex;min-height:0}
 #g-lanes{pointer-events:none}
 .p-person{fill:var(--c-personF);stroke:var(--c-personS);stroke-width:1.4}
 .p-band{fill:var(--c-band)}
+.p-checklist{fill:var(--c-checklistF);stroke:var(--c-checklistS);stroke-width:1.4}
+.p-checkhead{fill:var(--c-checklistH)}
+.p-checkbox{fill:none;stroke:var(--c-checklistS);stroke-width:1.2}
+.node .ck{cursor:pointer}
+.node .ck:hover .ck-box{stroke-width:2.4!important}
 
 .zoom{position:absolute;right:12px;bottom:12px;display:flex;align-items:center;gap:2px;background:var(--panel);border:1px solid var(--border);border-radius:9px;box-shadow:var(--shadow);padding:3px;z-index:5}
 .zoom button{border:0;background:none;cursor:pointer;min-width:28px;height:26px;border-radius:6px;font-size:14px}
@@ -233,6 +241,9 @@ kbd{font:11.5px var(--font);border:1px solid var(--border);border-bottom-width:2
       <button class="menu-item" data-example="loop1">User access review</button>
       <button class="menu-item" data-example="loop2">SSL certificate check</button>
       <button class="menu-item" data-example="loop3">Daily backup check</button>
+      <div class="menu-sep"></div>
+      <div class="menu-h">Checklist</div>
+      <button class="menu-item" data-example="check1">New joiner setup</button>
     </div>
   </div>
   <button class="btn" id="btn-new" title="Start a new diagram">New</button>
@@ -290,6 +301,7 @@ kbd{font:11.5px var(--font);border:1px solid var(--border);border-bottom-width:2
       <button class="pal-item" data-kind="loop" title="Loop (for each) - drag onto the canvas"><svg viewBox="0 0 40 26"><polygon points="9,4 31,4 38,13 31,22 9,22 2,13" class="p-loop"/></svg><span>Loop</span></button>
       <button class="pal-item" data-kind="io" title="Input / Output - drag onto the canvas"><svg viewBox="0 0 40 26"><polygon points="9,4 38,4 31,22 2,22" class="p-io"/></svg><span>In / Out</span></button>
       <button class="pal-item" data-kind="database" title="Database - drag onto the canvas"><svg viewBox="0 0 40 26"><path d="M9,5 V21 A11,3.5 0 0 0 31,21 V5 A11,3.5 0 0 0 9,5 Z" class="p-database"/><ellipse cx="20" cy="5" rx="11" ry="3.5" class="p-database"/></svg><span>Database</span></button>
+      <button class="pal-item" data-kind="checklist" title="Checklist (to-do list) - drag onto the canvas"><svg viewBox="0 0 40 26"><rect x="4" y="1" width="32" height="24" rx="3" class="p-checklist"/><path d="M4.7,8 V4 A2.3,2.3 0 0 1 7,1.7 H33 A2.3,2.3 0 0 1 35.3,4 V8 Z" class="p-checkhead"/><rect x="8" y="11" width="5" height="5" rx="1" class="p-checkbox"/><rect x="8" y="18" width="5" height="5" rx="1" class="p-checkbox"/><path d="M16,13.5 H31 M16,20.5 H28" class="p-checkbox"/></svg><span>Checklist</span></button>
       <button class="pal-item" data-kind="terminal" title="Start / End - drag onto the canvas"><svg viewBox="0 0 40 26"><rect x="2" y="5" width="36" height="16" rx="8" class="p-terminal"/></svg><span>Start/End</span></button>
       <button class="pal-item" data-kind="person" title="Person (org chart) - drag onto the canvas"><svg viewBox="0 0 40 26"><rect x="5" y="3" width="30" height="20" rx="3" class="p-person"/><rect x="5" y="3" width="30" height="3" rx="1.5" class="p-band"/></svg><span>Person</span></button>
     </div>
@@ -325,13 +337,14 @@ kbd{font:11.5px var(--font);border:1px solid var(--border);border-bottom-width:2
       <code>Sara (Head of IT) reports to Tom (CEO)</code><span>name (job title) - title once is enough</span>
       <code>Ali (Engineer) reports to Sara</code><span>boss on top, team below</span>
     </div>
-    <h3>Loops, notes, lanes</h3>
+    <h3>Loops, notes, lanes, checklists</h3>
     <div class="help-grid">
       <code>for each server, go to Check disk space</code><span>loop box (hexagon) - repeats for every server</span>
       <code>Clean temp files, go to next server</code><span>back to the loop for the next one</span>
       <code>when done, go to Send report</code><span>leave the loop when all are done</span>
       <code>note Send report: goes to the IT Ops mailbox</code><span>yellow sticky note beside the box</span>
       <code>lane Service desk: Log ticket, Close ticket</code><span>swimlane - who does these steps</span>
+      <code>todo Set up laptop: Install apps, [x] Encrypt disk</code><span>checklist box - commas between items, [x] = ticked</span>
     </div>
     <h3>Shapes are picked for you</h3>
     <ul class="help-list">
@@ -339,6 +352,7 @@ kbd{font:11.5px var(--font);border:1px solid var(--border);border-bottom-width:2
       <li><b>Diamond</b>: made by <i>if</i>, or a name ending in <b>?</b></li>
       <li><b>Database (cylinder)</b>: name has DB, Database or SQL in it, e.g. <i>Read DB</i></li>
       <li><b>Hexagon</b>: a loop - <i>for each ...</i></li>
+      <li><b>Checklist</b>: made by a <i>todo</i> line - turns green when every item is ticked</li>
       <li><b>Red box</b>: name has error, failed, failure, exception, invalid, denied, rejected, timeout or abort</li>
       <li><b>Green box</b>: name has success, succeeded, completed, done, OK, passed or resolved</li>
       <li><b>Arrows</b>: Yes = green, No = red</li>
@@ -352,6 +366,7 @@ kbd{font:11.5px var(--font);border:1px solid var(--border);border-bottom-width:2
       <li>Drag from a blue dot to another box to link them. Drop on empty space = new box.</li>
       <li>Double-click a box to rename. Double-click empty space to add a step.</li>
       <li>Click a box or arrow, then <kbd>Delete</kbd>. Right-click a box to add a note, put it in a lane or pick a shape.</li>
+      <li>Click a tick box in a checklist to tick it. Right-click a checklist &gt; <b>Add item</b>.</li>
       <li>Mouse wheel zooms. Drag empty space to move around.</li>
       <li><b>1 2 3</b> shows step numbers. <b>Copy picture</b> copies the diagram - paste it into Outlook, Teams or Word.</li>
     </ul>
@@ -374,8 +389,9 @@ const F_LABEL = `500 13px ${FONT}`, F_NAME = `600 13.5px ${FONT}`, F_TITLE = `40
 const F_NOTE = `400 11.5px ${FONT}`, F_LANE = `600 12.5px ${FONT}`, F_NUM = `700 10.5px ${FONT}`;
 const LINE_H = 17, TITLE_H = 15, SKEW = 12, DB_RY = 7, HEX = 14, SEP = '\u0001', LH = 22;
 const NOTE_GAP = 22, NOTE_LH = 15, LANE_HEAD = 30, LANE_PAD = 26;
-const KINDS = ['step', 'decision', 'loop', 'io', 'database', 'terminal', 'person'];
-const KIND_NAME = { step: 'Step', decision: 'Decision', loop: 'Loop (for each)', io: 'Input / Output', database: 'Database', terminal: 'Start / End', person: 'Person' };
+const CK_W = 210, CK_PADX = 12, CK_IND = 21, CK_BOX = 12;   // checklist: text width, side padding, item indent, tick box size
+const KINDS = ['step', 'decision', 'loop', 'io', 'database', 'checklist', 'terminal', 'person'];
+const KIND_NAME = { step: 'Step', decision: 'Decision', loop: 'Loop (for each)', io: 'Input / Output', database: 'Database', checklist: 'Checklist', terminal: 'Start / End', person: 'Person' };
 const STORE_KEY = 'texttoflow.doc', THEME_KEY = 'texttoflow.theme', WIDTH_KEY = 'texttoflow.edw';
 const OLD_STORE_KEY = 'suhailflow.doc'; // the app's old name - read once so the last diagram is not lost
 
@@ -390,7 +406,8 @@ const LIGHT = {
   errF: '#FCE8EB', errS: '#C8102E', errTermF: '#C8102E', errTermT: '#FFFFFF',
   okF: '#EAF8E1', okS: '#2E9B00', okTermF: '#2E9B00', okTermT: '#FFFFFF', loopF: '#FFFFFF', loopS: '#0473EA',
   noteF: '#FFF8D6', noteS: '#E5C55C', noteText: '#5A4500', num: '#0473EA', numText: '#FFFFFF',
-  laneA: '#EDF2F8', laneB: '#F7F9FC', laneLine: '#D3DCE8', laneHead: '#13294B', laneHeadText: '#FFFFFF'
+  laneA: '#EDF2F8', laneB: '#F7F9FC', laneLine: '#D3DCE8', laneHead: '#13294B', laneHeadText: '#FFFFFF',
+  checklistF: '#FFFFFF', checklistS: '#0473EA', checklistH: '#E8F1FD'
 };
 const LIVE = {};
 for (const k of Object.keys(LIGHT)) LIVE[k] = `var(--c-${k})`;
@@ -448,6 +465,8 @@ const RX = {
   person: /^(.*?)\s*\(([^()]*)\)$/,
   note: /^\s*note\s+(.+?)\s*:\s*(.+?)\s*$/di,
   lane: /^\s*lane\s+(.+?)\s*:\s*(.*?)\s*$/di,
+  todo: /^\s*(?:to\s*do|checklist)\s+(.+?)\s*:\s*(.*?)\s*$/di,
+  tick: /^\[\s*([xX✓✔]?)\s*\]\s*/,
   forEach: new RegExp(String.raw`^\s*(?:(.+?)\s*,\s*)?\bfor\s*each\s+(.+?)\s*,?\s*(?:then\s+)?${GO}\s*(.+?)\s*$`, 'di'),
   forEachAlone: /^\s*for\s*each\s+(.+?)\s*$/di,
   whenDone: new RegExp(String.raw`^\s*when\s+(?:all\s+)?(?:(.+?)\s+)?(?:are\s+|is\s+)?done\b\s*,?\s*(?:then\s+)?${GO}\s*(.+?)\s*$`, 'di'),
@@ -572,6 +591,24 @@ function parse(text, ov) {
         at += part.length + 1;
       }
       laneDefs.push({ i, name: m[1].trim(), items });
+    } else if ((m = RX.todo.exec(raw))) {
+      // checklist: "todo Box: item, [x] item" - the box name is a normal box, the items live inside it
+      r.type = 'todo';
+      const id = ref(raw, i, m.indices[1]);
+      if (id == null) err(i, 'Write it like: todo Set up laptop: Install apps, Encrypt disk');
+      else {
+        const n = nodes.get(id);
+        n.todo ||= []; (n.todoLines ||= []).push(i);
+        let at = m.indices[2][0];
+        for (const part of m[2].split(',')) {
+          const sp = span(raw, [at, at + part.length]);
+          at += part.length + 1;
+          const tk = RX.tick.exec(sp.text), txt = sp.text.slice(tk ? tk[0].length : 0).trim();
+          // ps..pe = the "[x] " in front of the item (empty when there is none) - ticking edits only that part
+          if (txt) n.todo.push({ text: txt, done: !!(tk && tk[1]), line: i, ps: sp.s, pe: sp.s + (tk ? tk[0].length : 0) });
+        }
+        r.tgt = id; ctx = id;
+      }
     } else if ((m = RX.whenDone.exec(raw))) {
       r.type = 'done';
       const lp = findLoop(m[1] && m[1].trim() ? m[1] : null);
@@ -715,6 +752,7 @@ function parse(text, ov) {
     n.inD = a; n.outD = b;
     n.kind = KINDS.includes(ov[n.id]) ? ov[n.id]
       : n.person ? 'person'
+      : n.todo ? 'checklist'
       : LOOP_RX.test(n.label) ? 'loop'
       : n.dec ? 'decision'
       : DB_RX.test(n.label) ? 'database'
@@ -723,7 +761,8 @@ function parse(text, ov) {
       : (n === first && !a && b) || (a && !b) ? 'terminal'
       : 'step';
     n.bad = n.kind !== 'person' && ERR_RX.test(n.label);
-    n.good = !n.bad && n.kind !== 'person' && OK_RX.test(n.label);
+    // a checklist is green when every item is ticked (not by its name)
+    n.good = !n.bad && (n.kind === 'checklist' ? !!(n.todo && n.todo.length && n.todo.every(x => x.done)) : n.kind !== 'person' && OK_RX.test(n.label));
   }
   return { nodes, edges, recs, errors, lanes: laneList, laneLines };
 }
@@ -746,6 +785,19 @@ function measureBox(n) {
     const w = Math.max(0, ...n.txt.map(t => tw(t, F_NAME)), ...n.ttxt.map(t => tw(t, F_TITLE)));
     n.w = Math.max(120, Math.ceil(w) + 32);
     n.h = n.txt.length * LINE_H + n.ttxt.length * TITLE_H + 26;
+    return;
+  }
+  if (n.kind === 'checklist') {
+    const items = n.todo || [], done = items.filter(x => x.done).length;
+    n.count = items.length ? `${done}/${items.length}` : '';
+    n.txt = wrapText(n.label, F_NAME, CK_W - 34);
+    n.ttxt = [];
+    n.citems = items.length ? items.map(it => ({ done: it.done, rows: wrapText(it.text, F_LABEL, CK_W - CK_IND) })) : [{ empty: true, rows: ['No items yet'] }];
+    const head = Math.max(...n.txt.map(t => tw(t, F_NAME))) + 10 + (n.count ? tw(n.count, F_TITLE) + 12 : 0);   // +10: room for a step number
+    const body = Math.max(...n.citems.map(it => CK_IND + Math.max(...it.rows.map(t => tw(t, F_LABEL)))));
+    n.w = Math.max(150, Math.ceil(Math.max(head, body)) + CK_PADX * 2);
+    n.headH = n.txt.length * LINE_H + 12;
+    n.h = n.headH + n.citems.reduce((a, it) => a + it.rows.length, 0) * LINE_H + (n.citems.length - 1) * 3 + 14;
     return;
   }
   const maxW = { step: 160, io: 150, database: 150, loop: 150, terminal: 150, decision: 118 }[n.kind] || 160;
@@ -1187,6 +1239,7 @@ function bbox(P, R) {
    ================================================================ */
 // fill / border / text colour of a box (red for error words, green for success words)
 function nodeColors(n, C) {
+  if (n.kind === 'checklist') return { f: n.good ? C.okF : C.checklistF, s: n.bad ? C.errS : n.good ? C.okS : C.checklistS, t: C.text };
   if (n.bad && n.kind === 'terminal') return { f: C.errTermF, s: C.errTermF, t: C.errTermT };
   if (n.bad) return { f: C.errF, s: C.errS, t: C.text };
   if (n.good && n.kind === 'terminal') return { f: C.okTermF, s: C.okTermF, t: C.okTermT };
@@ -1195,6 +1248,29 @@ function nodeColors(n, C) {
 }
 // Yes arrows green, No arrows red
 const tone = e => e.label === 'Yes' ? 'yes' : e.label === 'No' ? 'no' : '';
+
+// inside a checklist: name + "2/3" on the header band, then one row per item with a tick box
+// (on screen each tick box is a .ck group you can click)
+function checklistText(n, hw, hh, C, tc, live) {
+  const x0 = -hw + CK_PADX, hx = x0 + (S.nums && n.num ? 10 : 0), headT = n.good ? C.okTermT : C.text;
+  let y = -hh + 6, out = '';
+  for (const t of n.txt) { out += `<text x="${f1(hx)}" y="${f1(y + LINE_H / 2)}" dominant-baseline="central" style="font:${F_NAME};fill:${headT}">${esc(t)}</text>`; y += LINE_H; }
+  if (n.count) out += `<text x="${f1(hw - CK_PADX)}" y="${f1(-hh + 6 + LINE_H / 2)}" text-anchor="end" dominant-baseline="central" style="font:${F_TITLE};fill:${n.good ? C.okTermT : C.sub}">${n.count}</text>`;
+  y = -hh + n.headH + 7;
+  n.citems.forEach((it, k) => {
+    if (it.empty) { out += `<text x="${f1(x0)}" y="${f1(y + LINE_H / 2)}" dominant-baseline="central" style="font:${F_TITLE};fill:${C.sub}">${esc(it.rows[0])}</text>`; return; }
+    const cy = y + LINE_H / 2;
+    let box = `<rect class="ck-box" x="${f1(x0)}" y="${f1(cy - CK_BOX / 2)}" width="${CK_BOX}" height="${CK_BOX}" rx="2.5" style="fill:${it.done ? C.okS : C.checklistF};stroke:${it.done ? C.okS : C.checklistS};stroke-width:1.3"/>`;
+    if (it.done) box += `<path d="M${f1(x0 + 2.6)},${f1(cy + 0.2)} l2.7,2.7 l4.3,-5" style="fill:none;stroke:${C.checklistF};stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round"/>`;
+    out += live ? `<g class="ck" data-k="${k}"><rect x="${f1(x0 - 5)}" y="${f1(cy - 11)}" width="${CK_BOX + 10}" height="22" style="fill:transparent"/>${box}</g>` : box;
+    for (const t of it.rows) {
+      out += `<text x="${f1(x0 + CK_IND)}" y="${f1(y + LINE_H / 2)}" dominant-baseline="central" style="font:${F_LABEL};fill:${it.done ? C.sub : tc}${it.done ? ';text-decoration:line-through' : ''}">${esc(t)}</text>`;
+      y += LINE_H;
+    }
+    y += 3;
+  });
+  return out;
+}
 
 function nodeSvg(n, p, C, live) {
   const w = n.w, h = n.h, hw = w / 2, hh = h / 2;
@@ -1215,6 +1291,13 @@ function nodeSvg(n, p, C, live) {
     sh = `<rect x="${f1(-hw)}" y="${f1(-hh)}" width="${f1(w)}" height="${f1(h)}" rx="9" style="fill:${f};stroke:none"/>`
       + `<path d="M${f1(-hw + cx)},${f1(-hh + 4)} A9,9 0 0 1 ${f1(-hw + 9)},${f1(-hh)} H${f1(hw - 9)} A9,9 0 0 1 ${f1(hw - cx)},${f1(-hh + 4)} Z" style="fill:${C.band}"/>`
       + `<rect x="${f1(-hw)}" y="${f1(-hh)}" width="${f1(w)}" height="${f1(h)}" rx="9" style="fill:none;stroke:${s};stroke-width:1.2"/>`;
+  } else if (n.kind === 'checklist') {
+    // card with a header band (red / green band when the name has error words / every item is ticked)
+    const hb = -hh + n.headH, head = n.bad ? C.errF : n.good ? C.okTermF : C.checklistH;
+    sh = `<rect x="${f1(-hw)}" y="${f1(-hh)}" width="${f1(w)}" height="${f1(h)}" rx="8" style="fill:${f};stroke:none"/>`
+      + `<path d="M${f1(-hw)},${f1(hb)} V${f1(-hh + 8)} A8,8 0 0 1 ${f1(-hw + 8)},${f1(-hh)} H${f1(hw - 8)} A8,8 0 0 1 ${f1(hw)},${f1(-hh + 8)} V${f1(hb)} Z" style="fill:${head}"/>`
+      + `<path d="M${f1(-hw)},${f1(hb)} H${f1(hw)}" style="fill:none;stroke:${s};stroke-width:1;opacity:.45"/>`
+      + `<rect x="${f1(-hw)}" y="${f1(-hh)}" width="${f1(w)}" height="${f1(h)}" rx="8" style="fill:none;stroke:${s};stroke-width:1.5"/>`;
   } else sh = `<rect x="${f1(-hw)}" y="${f1(-hh)}" width="${f1(w)}" height="${f1(h)}" rx="8" style="${st}"/>`;
 
   const rows = [
@@ -1227,6 +1310,7 @@ function nodeSvg(n, p, C, live) {
     txt += `<text x="0" y="${f1(y + lh / 2)}" text-anchor="middle" dominant-baseline="central" style="font:${font};fill:${col}">${esc(t)}</text>`;
     y += lh;
   }
+  if (n.kind === 'checklist') txt = checklistText(n, hw, hh, C, tc, live);
   // sticky note: right of the box (top-down) or below it (left-right), joined by a dotted line
   let note = '';
   if (n.ntxt) {
@@ -1405,7 +1489,8 @@ function hiLine(ln) {
   if (RX.comment.test(ln)) return `<span class="cm">${esc(ln)}</span>`;
   return esc(ln)
     .replace(/\b(go\s*to|goes\s+to|then|if|else|otherwise|reports\s+to|for\s*each)\b/gi, '<span class="kw">$1</span>')
-    .replace(/^(\s*)(note|lane|when)\b/i, '$1<span class="kw">$2</span>')
+    .replace(/^(\s*)(note|lane|when|to\s*do|checklist)\b/i, '$1<span class="kw">$2</span>')
+    .replace(/\[\s*[xX✓✔]?\s*\]/g, '<span class="kw">$&</span>')
     .replace(/(<\/span>\s+)(next)\b/gi, '$1<span class="kw">$2</span>')
     .replace(/\([^()]*\)/g, '<span class="tt">$&</span>');
 }
@@ -1582,6 +1667,31 @@ function addNote(id, text) {
   if (n && text) appendLines([`note ${n.label}: ${text}`]);
 }
 
+// tick / untick checklist item k: adds or removes the "[x] " in front of it in the text
+function toggleTodo(id, k) {
+  const n = M.nodes.get(id), it = n && n.todo && n.todo[k];
+  if (!it) return;
+  const lines = S.text.split('\n'), t = lines[it.line];
+  lines[it.line] = t.slice(0, it.ps) + (it.done ? '' : '[x] ') + t.slice(it.pe);
+  autoFit = false;
+  keepInView = true;
+  commitText(lines.join('\n'));
+}
+
+// add item(s) to a checklist - commas give more than one
+function addTodoItem(id, text) {
+  const n = M.nodes.get(id);
+  text = (text || '').trim().replace(/^,+|,+$/g, '').trim();
+  if (!n || !text) return;
+  autoFit = false;
+  keepInView = true;
+  const li = n.todoLines ? n.todoLines[n.todoLines.length - 1] : -1;
+  if (li < 0) return appendLines([`todo ${n.label}: ${text}`]);
+  const lines = S.text.split('\n'), cur = lines[li].replace(/\s+$/, '');
+  lines[li] = cur + (/:$/.test(cur) ? ' ' : ', ') + text;
+  commitText(lines.join('\n'));
+}
+
 function deleteEdge(eid) {
   const e = M.edges.find(x => x.id === eid);
   if (!e) return;
@@ -1661,7 +1771,7 @@ function connect(a, b, at) {
 function addNode(kind, value, w, from) {
   let name = (value || '').trim();
   if (!name) return;
-  let id;
+  let id, todo = null;
   if (kind === 'decision') {
     const base = name.replace(/\s*\?+$/, '');
     if (!base) return;
@@ -1673,6 +1783,13 @@ function addNode(kind, value, w, from) {
     const it = name.replace(/^for\s*each\s+/i, '').trim();
     if (!it) return;
     name = 'For each ' + it; id = norm(name);
+  } else if (kind === 'checklist') {
+    // "Name: item, item" - the part after the colon becomes the items
+    const c = name.indexOf(':');
+    todo = c >= 0 ? name.slice(c + 1).trim() : '';
+    name = (c >= 0 ? name.slice(0, c) : name).trim();
+    if (!name) return;
+    id = norm(name);
   } else id = norm(name);
   autoFit = false;
   keepInView = true;
@@ -1680,17 +1797,18 @@ function addNode(kind, value, w, from) {
   if (!M.nodes.has(id)) mpos()[id] = { x: w.x, y: w.y, drop: true };
   if (kind === 'io' || kind === 'database' || kind === 'terminal' || kind === 'person') S.shape[id] = kind;
   const A = from != null ? M.nodes.get(from) : null;
-  if (!A) return appendLines([name]);
+  const extra = todo != null ? [`todo ${name}: ${todo}`.trimEnd()] : [];
+  if (!A) return appendLines(todo != null ? extra : [name]);
   const label = RX.person.exec(name) && kind === 'person' ? RX.person.exec(name)[1].trim() : name;
   if (A.kind === 'person' || kind === 'person') appendLines([`${name} reports to ${A.label}`]);
-  else if (A.kind === 'decision') chooseLabel(toClient(w.x, w.y), lab => appendLines([`${A.label}, if ${lab}, go to ${label}`]));
-  else appendLines([`${A.label}, go to ${label}`]);
+  else if (A.kind === 'decision') chooseLabel(toClient(w.x, w.y), lab => appendLines([`${A.label}, if ${lab}, go to ${label}`, ...extra]));
+  else appendLines([`${A.label}, go to ${label}`, ...extra]);
 }
 
-const PLACEHOLDER = { step: 'Step name', decision: 'Question, e.g. User found?', loop: 'Loop over, e.g. server', io: 'e.g. Read CSV file', database: 'e.g. Read DB', terminal: 'Start or End', person: 'Name (Job title)' };
+const PLACEHOLDER = { step: 'Step name', decision: 'Question, e.g. User found?', loop: 'Loop over, e.g. server', io: 'e.g. Read CSV file', database: 'e.g. Read DB', checklist: 'Name: item, item', terminal: 'Start or End', person: 'Name (Job title)' };
 function promptNew(kind, w, from) {
   const val = kind === 'terminal' ? (M.nodes.size ? 'End' : 'Start') : '';
-  openEditor({ wx: w.x, wy: w.y, value: val, placeholder: PLACEHOLDER[kind], width: 180, onCommit: v => addNode(kind, v, w, from) });
+  openEditor({ wx: w.x, wy: w.y, value: val, placeholder: PLACEHOLDER[kind], width: kind === 'checklist' ? 240 : 180, onCommit: v => addNode(kind, v, w, from) });
 }
 
 function startRename(id) {
@@ -1798,7 +1916,8 @@ function drawTemp() {
 svg.addEventListener('pointerdown', ev => {
   if (ev.button !== 0) return;
   closeMenus();
-  const h = ev.target.closest('.handle'), nd = ev.target.closest('.node'), ed = ev.target.closest('.edge');
+  const h = ev.target.closest('.handle'), nd = ev.target.closest('.node'), ed = ev.target.closest('.edge'), ck = ev.target.closest('.ck');
+  if (ck && nd) { ev.preventDefault(); toggleTodo(nd.dataset.id, +ck.dataset.k); return; }
   svg.setPointerCapture(ev.pointerId);
   if (h && nd) {
     const id = nd.dataset.id, p = lastP[id];
@@ -1882,6 +2001,7 @@ svg.addEventListener('contextmenu', ev => {
     openMenu(ev.clientX, ev.clientY, [
       { label: 'Rename', hint: 'F2', act: () => startRename(id) },
       { label: 'Add note…', act: () => openEditor({ ...at, placeholder: 'Note text', onCommit: v => addNote(id, v) }) },
+      ...(n.kind === 'checklist' ? [{ label: 'Add item…', act: () => openEditor({ ...at, placeholder: 'New item (commas = more items)', onCommit: v => addTodoItem(id, v) }) }] : []),
       { label: 'Lane…', hint: n.lane != null && M.lanes.length ? M.lanes[n.lane] : '', act: () => openEditor({ ...at, value: n.lane != null && !n.laneAuto ? M.lanes[n.lane] : '', placeholder: 'Lane name (empty = no lane)', onCommit: v => setLane(id, v) }) },
       { header: 'Shape' },
       { label: 'Automatic', on: !ov, act: () => setShape(id, null) },
@@ -2115,6 +2235,7 @@ function buildDrawioXml() {
     database: `shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=${DB_RY};`,
     loop: `shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;fixedSize=1;size=${HEX};strokeWidth=2;`,
     person: 'rounded=1;whiteSpace=wrap;html=1;arcSize=10;',
+    checklist: 'rounded=1;whiteSpace=wrap;html=1;arcSize=6;align=left;verticalAlign=top;spacingLeft=10;spacingTop=4;',
   };
   let cells = '<mxCell id="0"/><mxCell id="1" parent="0"/>', k = 2;
   const cid = new Map(), TB = S.dir === 'TB';
@@ -2130,6 +2251,9 @@ function buildDrawioXml() {
     const style = STY[n.kind] + `fillColor=${nc.f};strokeColor=${n.kind === 'person' ? LIGHT.band : nc.s};fontColor=${nc.t};fontSize=13;`;
     const value = n.kind === 'person'
       ? `<b>${esc(n.label)}</b>` + (n.title ? `<br><font style="font-size:11px" color="${LIGHT.sub}">${esc(n.title)}</font>` : '')
+      : n.kind === 'checklist'
+      ? `<b>${S.nums && n.num ? `${n.num}. ` : ''}${esc(n.label)}</b>` + (n.count ? ` <font style="font-size:11px" color="${LIGHT.sub}">${n.count}</font>` : '')
+        + (n.todo || []).map(it => it.done ? `<br>☑ <strike>${esc(it.text)}</strike>` : `<br>☐ ${esc(it.text)}`).join('')
       : (S.nums && n.num ? `${n.num}. ` : '') + esc(n.label);
     cells += `<mxCell id="${id}" value="${esc(value)}" style="${esc(style)}" vertex="1" parent="1"><mxGeometry x="${r(p.x - n.w / 2 + ox)}" y="${r(p.y - n.h / 2 + oy)}" width="${r(n.w)}" height="${r(n.h)}" as="geometry"/></mxCell>`;
     if (n.ntxt) {
@@ -2283,6 +2407,18 @@ const EXAMPLES = {
     'lane Backup team: Get backup jobs from SQL, Check job status, Rerun job, Send daily report',
     'lane Service desk: Raise P3 incident',
   ].join('\n') },
+  check1: { title: 'New joiner setup', text: [
+    '# New joiner setup - checklist boxes ([x] = done, click a tick box to tick it)',
+    'Start, go to Get joiner details from HR',
+    'Get joiner details from HR, go to Create accounts',
+    'todo Create accounts: [x] AD account, [x] Email account, [x] Payments system access',
+    'Create accounts, if manager approved, go to Prepare laptop',
+    'else go to Ask manager to approve',
+    'Ask manager to approve, go to Create accounts',
+    'todo Prepare laptop: [x] Install standard apps, Encrypt disk, Set up MFA',
+    'Prepare laptop, go to Send welcome email',
+    'Send welcome email, go to End',
+  ].join('\n') },
 };
 
 function updDirBtn() { $('#btn-dir').innerHTML = S.dir === 'TB' ? '&#8595; Top-down' : '&#8594; Left-right'; }
@@ -2399,7 +2535,7 @@ if (saved && typeof saved.text === 'string') loadDoc(saved);
 else loadDoc({ ...EXAMPLES.flow1, dir: 'TB' });
 
 // small hook so the page can be checked by a test script
-window.__texttoflow = { parse, layoutGraph, get M() { return M; }, get L() { return L; }, get P() { return lastP; }, get R() { return lastR; }, S, refresh, render, deleteNode, deleteEdge, renameNode, connect, addNode, setShape, setLane, addNote, copyPicture, editLines, undo, redo, buildExportSvg, buildDrawioXml, loadDoc, fit, get sel() { return sel; }, select, get view() { return view; } };
+window.__texttoflow = { parse, layoutGraph, get M() { return M; }, get L() { return L; }, get P() { return lastP; }, get R() { return lastR; }, S, refresh, render, deleteNode, deleteEdge, renameNode, connect, addNode, setShape, setLane, addNote, toggleTodo, addTodoItem, copyPicture, editLines, undo, redo, buildExportSvg, buildDrawioXml, loadDoc, fit, get sel() { return sel; }, select, get view() { return view; } };
 })();
 </script>
 </body>
