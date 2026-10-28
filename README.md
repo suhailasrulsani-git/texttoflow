@@ -4,6 +4,8 @@ Type plain-English steps, get a flowchart or org chart. One HTML file. No instal
 
 **Open it here: https://suhailasrulsani-git.github.io/texttoflow/**
 
+**Watch the demo (1:52, sound on): https://suhailasrulsani-git.github.io/texttoflow/TextToFlow-demo.mp4**
+
 Your diagrams stay in your own browser. Nothing is sent anywhere.
 
 ## How to use
