@@ -2,7 +2,13 @@
 
 Type plain-English steps, get a flowchart or org chart. One HTML file. No install, works offline.
 
+**Open it here: https://suhailasrulsani-git.github.io/texttoflow/**
+
+Your diagrams stay in your own browser. Nothing is sent anywhere.
+
 ## How to use
+
+Use the link above, or to keep a copy:
 
 1. Download `TextToFlow.html`.
 2. Double-click it. It opens in Edge or Chrome.
